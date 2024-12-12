@@ -30,13 +30,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_page_transformers: ^0.4.0 # Add this for page transformations
+  # image_picker: ^0.8.7+5
+
+  # flutter_page_transformers: ^0.4.0 # Add this for page transformations
 
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  font_awesome_flutter: ^10.0.0  # Add this package
+
 
 dev_dependencies:
   flutter_test:
@@ -48,7 +52,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -87,14 +90,10 @@ flutter:
           style: italic
         - asset: assets/fonts/Poppins-Medium.ttf
           weight: 500
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 300
 
-    - family: Hangyaboly
-      fonts:
-        - asset: assets/fonts/Hangyaboly.ttf
-    - family: Quicksand
-      fonts:
-        - asset: assets/fonts/Quicksand.ttf
-          weight: 700
+    
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
