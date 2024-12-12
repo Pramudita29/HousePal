@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:housepal_project/view/registration_page.dart'; // RegisterPage import if needed for navigation
+import 'package:housepal_project/view/registration_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,7 +11,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _rememberMe = false;
 
   @override
   void dispose() {
@@ -24,19 +23,18 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailController.text;
     String password = _passwordController.text;
 
-    // Add login functionality here (authentication logic)
-    if (email.isNotEmpty && password.isNotEmpty) {
-      // Navigate to the home page or dashboard
-      // Example: Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()));
-    } else {
-      // Show error if email or password is empty
+    // Static login credentials (same as registration)
+    if (email == "admin123@gmail.com" && password == "admin123") {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter both email and password')),
+        const SnackBar(content: Text('Login Successful!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid email or password!')),
       );
     }
   }
 
-  // Reusable TextField without Boxes (same style as RegisterPage)
   Widget _buildTextField(
       String label, TextEditingController controller, IconData icon,
       {bool isPassword = false}) {
@@ -47,8 +45,8 @@ class _LoginPageState extends State<LoginPage> {
         prefixIcon: Icon(icon, color: Colors.black54),
         labelText: label,
         labelStyle: const TextStyle(
-          fontFamily: 'Poppins', // Using custom Poppins font
-          fontSize: 14, // Smaller font size
+          fontFamily: 'Poppins',
+          fontSize: 14,
           color: Colors.black54,
         ),
         enabledBorder: const UnderlineInputBorder(
@@ -57,8 +55,7 @@ class _LoginPageState extends State<LoginPage> {
         focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF4CAF50)),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 8, horizontal: 15), // Reduced padding
+        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
       ),
     );
   }
@@ -66,161 +63,135 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 100), // Move logo a bit down
-              Image.asset(
-                'assets/images/logo.png', // Replace with your actual logo file path
-                height: 60,
-                width: 60,
-              ),
-              const SizedBox(height: 30), // Space between logo and welcome text
-
-              const Text(
-                'Welcome!',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 35,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              const Text(
-                'Hi, Enter your details to get sign in to your account',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300, // Light weight for description
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Email Field without Box (Line style) using _buildTextField
-              _buildTextField('Email', _emailController, Icons.email),
-              const SizedBox(height: 12),
-
-              // Password Field without Box (Line style) using _buildTextField
-              _buildTextField('Password', _passwordController, Icons.lock,
-                  isPassword: true),
-              const SizedBox(height: 20),
-
-              // Remember Me Checkbox
-              Row(
+      backgroundColor: Colors.white, // Set background color to white
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Checkbox(
-                    value: _rememberMe,
-                    onChanged: (value) {
-                      setState(() {
-                        _rememberMe = value!;
-                      });
-                    },
-                    activeColor: const Color(0xFF459D7A),
+                  const SizedBox(
+                      height:
+                          70), // Add space to avoid overlap with back button
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 60,
+                    width: 60,
                   ),
+                  const SizedBox(height: 30),
+
                   const Text(
-                    'Remember me',
+                    'Login',
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      fontSize: 14,
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    'Please enter your details to login.',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
                       color: Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Email Field
+                  _buildTextField('Email', _emailController, Icons.email),
+                  const SizedBox(height: 12),
+
+                  // Password Field
+                  _buildTextField(
+                    'Password',
+                    _passwordController,
+                    Icons.lock,
+                    isPassword: true,
+                  ),
+                  const SizedBox(height: 20),
+
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF459D7A),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 100),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 5,
+                      ),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterPage()),
+                        );
+                      },
+                      child: const Text(
+                        'Don\'t have an account? Register here',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF459D7A),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  const Center(
+                    child: Text(
+                      'By logging in, you agree to our Terms & Conditions',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                 ],
               ),
-
-              const SizedBox(height: 20),
-
-              // Login Button (Styled same as Register Button)
-              Center(
-                child: ElevatedButton(
-                  onPressed: _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF459D7A),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 100),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 5,
-                  ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              // Forgot Password Link
-              Center(
-                child: GestureDetector(
-                  onTap: () {
-                    // Handle forgot password action here
-                    // You can navigate to a Forgot Password page if needed
-                  },
-                  child: const Text(
-                    'Forgot Password?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF459D7A),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              // Link to Register Page (Centered)
-              Center(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterPage()),
-                    );
-                  },
-                  child: const Text(
-                    'Don\'t have an account? Register here',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF459D7A),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Terms and Conditions
-              const Center(
-                child: Text(
-                  'By logging in, you agree to our Terms & Conditions',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+
+          // Bigger Back button in the top-left corner
+          Positioned(
+            top: 35, // Adjust the top position as needed
+            left: 0, // Align it to the left
+            child: IconButton(
+              icon: const Icon(Icons.navigate_before, color: Colors.black),
+              iconSize: 30, // Increase icon size to make it bigger
+              onPressed: () {
+                Navigator.pop(context); // Navigate back to the previous page
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -71,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ? 'Choose from a variety of services: cleaning, babysitting, and more.'
                     : 'Relax while our trusted helpers take care of everything for you.',
             buttonText: index == 2 ? 'Get Started' : 'Next',
-            backgroundColor: const Color(0xFFFFF5F5),
+            backgroundColor: const Color(0xFFFFFFFF),
             onPressed: _goToNextPage,
             onSkip: _skipOnboarding,
             imagePath: index == 0

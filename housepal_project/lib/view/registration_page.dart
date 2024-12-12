@@ -30,19 +30,18 @@ class _RegisterPageState extends State<RegisterPage> {
     String password = _passwordController.text;
     String confirmPassword = _confirmPasswordController.text;
 
-    if (fullName.isNotEmpty &&
-        email.isNotEmpty &&
-        password.isNotEmpty &&
-        confirmPassword.isNotEmpty) {
-      if (password == confirmPassword) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registered Successfully!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match!')),
-        );
-      }
+    // Static registration credentials
+    if (fullName == "Admin" &&
+        email == "admin123@gmail.com" &&
+        password == "admin123" &&
+        confirmPassword == "admin123") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registered Successfully!')),
+      );
+    } else if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match!')),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields!')),
@@ -78,6 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Set background color to white
       body: Stack(
         children: [
           Padding(
