@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:housepal_project/view/registration_page.dart'; // Import your RegisterPage
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -19,12 +20,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.pushReplacementNamed(context, '/home');
+      // Navigate to the Register Page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const RegisterPage()),
+      );
     }
   }
 
   void _skipOnboarding() {
-    Navigator.pushReplacementNamed(context, '/home');
+    // Navigate directly to the Register Page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RegisterPage()),
+    );
   }
 
   @override
@@ -43,10 +52,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             pageIndex: index,
             currentPage: _currentPage,
             title: index == 0
-                ? 'Welcome to HousePal !'
+                ? 'Welcome to HousePal!'
                 : index == 1
                     ? 'Browse Available Helpers'
-                    : 'Enjoy\nProfessional Help !',
+                    : 'Enjoy\nProfessional Help!',
             description: index == 0
                 ? 'Find trusted house helpers and get your work done quickly.'
                 : index == 1
@@ -97,7 +106,6 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate scale and opacity based on the page index
     final double scale = currentPage == pageIndex ? 1.0 : 0.9;
     final double opacity = currentPage == pageIndex ? 1.0 : 0.5;
 
@@ -112,7 +120,7 @@ class OnboardingPage extends StatelessWidget {
             child: Text(
               'HOUSEPAL',
               style: TextStyle(
-                fontFamily: 'Quicksand',
+                fontFamily: 'Poppins',
                 fontSize: 35,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -205,7 +213,8 @@ class OnboardingPage extends StatelessWidget {
             ),
           ),
         ),
-        if (!isLastPage)
+        // Skip Button for 1st and 2nd pages
+        if (pageIndex < 2)
           Positioned(
             bottom: 20,
             left: 20,
@@ -221,35 +230,122 @@ class OnboardingPage extends StatelessWidget {
               ),
             ),
           ),
-        Positioned(
-          bottom: 20,
-          right: 20,
-          child: GestureDetector(
-            onTap: onPressed,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF459D7A),
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 6,
-                    offset: Offset(0, 4),
+        // Next Button for 1st and 2nd pages
+        if (pageIndex < 2)
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: GestureDetector(
+              onTap: onPressed, // Next or Get Started button
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onPressed,
+                  borderRadius: BorderRadius.circular(30),
+                  splashColor: Colors.white.withOpacity(0.5),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF459D7A), // Green for Next
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Text(
+                      'Next',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ],
-              ),
-              child: Text(
-                buttonText,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
-        ),
+        // Login and Register Buttons only for the last page (3rd)
+        if (isLastPage)
+          Positioned(
+            bottom: 20,
+            left: 20,
+            child: GestureDetector(
+              onTap: onSkip,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onSkip,
+                  borderRadius: BorderRadius.circular(30),
+                  splashColor: Colors.white.withOpacity(0.5),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color:
+                            const Color(0xFF459D7A), // Green border for Login
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF459D7A),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (isLastPage)
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: GestureDetector(
+              onTap: onPressed, // Register button
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onPressed,
+                  borderRadius: BorderRadius.circular(30),
+                  splashColor: Colors.white.withOpacity(0.5),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF459D7A), // Green for Register
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: const Text(
+                      'Register',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
