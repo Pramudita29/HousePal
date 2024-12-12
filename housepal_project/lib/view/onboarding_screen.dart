@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:housepal_project/view/registration_page.dart'; // Import your RegisterPage
+import 'package:housepal_project/view/login_page.dart'; // Import your LoginPage
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -33,6 +34,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const RegisterPage()),
+    );
+  }
+
+  void _goToLoginPage() {
+    // Navigate directly to the Login Page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
     );
   }
 
@@ -71,6 +80,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ? 'assets/images/Booking2.png'
                     : 'assets/images/relax.png',
             isLastPage: index == 2,
+            onLogin: _goToLoginPage, // Added login callback
           );
         },
       ),
@@ -89,6 +99,7 @@ class OnboardingPage extends StatelessWidget {
   final VoidCallback onSkip;
   final String imagePath;
   final bool isLastPage;
+  final VoidCallback onLogin; // Added onLogin callback
 
   const OnboardingPage({
     super.key,
@@ -102,6 +113,7 @@ class OnboardingPage extends StatelessWidget {
     required this.onSkip,
     required this.imagePath,
     required this.isLastPage,
+    required this.onLogin, // Passed onLogin callback
   });
 
   @override
@@ -276,11 +288,11 @@ class OnboardingPage extends StatelessWidget {
             bottom: 20,
             left: 20,
             child: GestureDetector(
-              onTap: onSkip,
+              onTap: onLogin, // Login button
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: onSkip,
+                  onTap: onLogin,
                   borderRadius: BorderRadius.circular(30),
                   splashColor: Colors.white.withOpacity(0.5),
                   child: Container(
@@ -328,8 +340,8 @@ class OnboardingPage extends StatelessWidget {
                       boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
-                          blurRadius: 10,
-                          offset: Offset(0, 8),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
