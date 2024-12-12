@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:housepal_project/view/login_page.dart'; // Import LoginPage
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -13,157 +14,42 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _contactController = TextEditingController();
-  String _userRole = 'househelper'; // Default selected role
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 50),
-              Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.navigate_before, color: Colors.black),
-                    onPressed: () {
-                      Navigator.pop(context); // Navigate back on button press
-                    },
-                  ),
-                  const SizedBox(
-                      width: 10), // Space between back arrow and "Welcome"
-                  const Text(
-                    'Welcome!',
-                    style: TextStyle(
-                      fontFamily: 'Poppins', // Using custom Poppins font
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Create an account to get started',
-                style: TextStyle(
-                  fontFamily: 'Poppins', // Using custom Poppins font
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300, // Light font weight
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 30),
-              // Full Name
-              _buildTextField('Full Name', _fullNameController, Icons.person),
-              const SizedBox(height: 12),
-              // Email
-              _buildTextField('Email', _emailController, Icons.email),
-              const SizedBox(height: 12),
-              // Address
-              _buildTextField('Address', _addressController, Icons.home),
-              const SizedBox(height: 12),
-              // Contact Number
-              _buildTextField(
-                  'Contact Number', _contactController, Icons.phone),
-              const SizedBox(height: 12),
-              // Password
-              _buildTextField('Password', _passwordController, Icons.lock,
-                  isPassword: true),
-              const SizedBox(height: 12),
-              // Confirm Password
-              _buildTextField('Confirm Password', _confirmPasswordController,
-                  Icons.lock_outline,
-                  isPassword: true),
-              const SizedBox(height: 20),
-              // Role Selector (without "Select Role" text)
-              Column(
-                children: [
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Radio<String>(
-                      value: 'househelper',
-                      groupValue: _userRole,
-                      onChanged: (value) {
-                        setState(() {
-                          _userRole = value!;
-                        });
-                      },
-                    ),
-                    title: const Text(
-                      "I'm a househelper",
-                      style: TextStyle(
-                        fontFamily: 'Poppins', // Using custom Poppins font
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal, // Regular font weight
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Radio<String>(
-                      value: 'looking',
-                      groupValue: _userRole,
-                      onChanged: (value) {
-                        setState(() {
-                          _userRole = value!;
-                        });
-                      },
-                    ),
-                    title: const Text(
-                      "I'm looking for a househelper",
-                      style: TextStyle(
-                        fontFamily: 'Poppins', // Using custom Poppins font
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal, // Regular font weight
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              // Submit Button
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle form submission here
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF459D7A),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 100), // Reduced padding
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 5,
-                  ),
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(
-                      fontFamily: 'Poppins', // Using custom Poppins font
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-            ],
-          ),
-        ),
-      ),
-    );
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 
-  // Reusable TextField without Boxes
+  void _register() {
+    String fullName = _fullNameController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+    String confirmPassword = _confirmPasswordController.text;
+
+    if (fullName.isNotEmpty &&
+        email.isNotEmpty &&
+        password.isNotEmpty &&
+        confirmPassword.isNotEmpty) {
+      if (password == confirmPassword) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registered Successfully!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Passwords do not match!')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields!')),
+      );
+    }
+  }
+
   Widget _buildTextField(
       String label, TextEditingController controller, IconData icon,
       {bool isPassword = false}) {
@@ -174,8 +60,8 @@ class _RegisterPageState extends State<RegisterPage> {
         prefixIcon: Icon(icon, color: Colors.black54),
         labelText: label,
         labelStyle: const TextStyle(
-          fontFamily: 'Poppins', // Using custom Poppins font
-          fontSize: 14, // Smaller font size
+          fontFamily: 'Poppins',
+          fontSize: 14,
           color: Colors.black54,
         ),
         enabledBorder: const UnderlineInputBorder(
@@ -184,8 +70,156 @@ class _RegisterPageState extends State<RegisterPage> {
         focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF4CAF50)),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 8, horizontal: 15), // Reduced padding
+        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                      height:
+                          70), // Add space to avoid overlap with back button
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 60,
+                    width: 60,
+                  ),
+                  const SizedBox(height: 30),
+
+                  const Text(
+                    'Register',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    'Create your account by filling in the details below.',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Full Name Field
+                  _buildTextField(
+                      'Full Name', _fullNameController, Icons.person),
+                  const SizedBox(height: 12),
+
+                  // Email Field
+                  _buildTextField('Email', _emailController, Icons.email),
+                  const SizedBox(height: 12),
+
+                  // Password Field
+                  _buildTextField(
+                    'Password',
+                    _passwordController,
+                    Icons.lock,
+                    isPassword: true,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Confirm Password Field
+                  _buildTextField(
+                    'Confirm Password',
+                    _confirmPasswordController,
+                    Icons.lock_outline,
+                    isPassword: true,
+                  ),
+                  const SizedBox(height: 20),
+
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _register,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF459D7A),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 100),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 5,
+                      ),
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      },
+                      child: const Text(
+                        'Already have an account? Login here',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF459D7A),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  const Center(
+                    child: Text(
+                      'By registering, you agree to our Terms & Conditions',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Bigger Back button in the top-left corner
+          Positioned(
+            top: 35, // Adjust the top position as needed
+            left: 0, // Align it to the left
+            child: IconButton(
+              icon: const Icon(Icons.navigate_before, color: Colors.black),
+              iconSize: 30, // Increase icon size to make it bigger
+              onPressed: () {
+                Navigator.pop(context); // Navigate back to the previous page
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

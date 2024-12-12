@@ -134,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
 
               // Login Button (Styled same as Register Button)
               Center(
@@ -160,7 +160,28 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+
+              const SizedBox(height: 25),
+
+              // Forgot Password Link
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    // Handle forgot password action here
+                    // You can navigate to a Forgot Password page if needed
+                  },
+                  child: const Text(
+                    'Forgot Password?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF459D7A),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
 
               // Link to Register Page (Centered)
               Center(
