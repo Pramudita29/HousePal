@@ -25,30 +25,33 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _register() {
-    String fullName = _fullNameController.text;
-    String email = _emailController.text;
-    String password = _passwordController.text;
-    String confirmPassword = _confirmPasswordController.text;
+  String fullName = _fullNameController.text;
+  String email = _emailController.text;
+  String password = _passwordController.text;
+  String confirmPassword = _confirmPasswordController.text;
 
-    if (fullName.isNotEmpty &&
-        email.isNotEmpty &&
-        password.isNotEmpty &&
-        confirmPassword.isNotEmpty) {
-      if (password == confirmPassword) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registered Successfully!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match!')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields!')),
-      );
-    }
+  if (fullName == "Admin" &&
+      email == "admin123@gmail.com" &&
+      password == "admin123" &&
+      confirmPassword == "admin123") {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Registered Successfully!')),
+    );
+    // Navigate to login page
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  } else if (password != confirmPassword) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Passwords do not match!')),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Please fill in all fields!')),
+    );
   }
+}
 
   Widget _buildTextField(
       String label, TextEditingController controller, IconData icon,
@@ -78,6 +81,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Set background color to white
       body: Stack(
         children: [
           Padding(
@@ -97,7 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(height: 30),
 
                   const Text(
-                    'Register',
+                    'Welcome!',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 35,
