@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:housepal_project/view/home_screen.dart';
+import 'package:housepal_project/view/dashboard_view.dart';
 import 'package:housepal_project/view/registration_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,26 +21,26 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _login() {
-  String email = _emailController.text;
-  String password = _passwordController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
 
-  // Static login credentials (same as registration)
-  if (email == "admin123@gmail.com" && password == "admin123") {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Login Successful!')),
-    );
+    // Static login credentials (same as registration)
+    if (email == "admin123@gmail.com" && password == "admin123") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login Successful!')),
+      );
 
-    // Navigate to HomePage
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Invalid email or password!')),
-    );
+      // Navigate to HomePage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DashboardView()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid email or password!')),
+      );
+    }
   }
-}
 
   Widget _buildTextField(
       String label, TextEditingController controller, IconData icon,
