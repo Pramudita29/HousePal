@@ -25,33 +25,33 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _register() {
-  String fullName = _fullNameController.text;
-  String email = _emailController.text;
-  String password = _passwordController.text;
-  String confirmPassword = _confirmPasswordController.text;
+    String fullName = _fullNameController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+    String confirmPassword = _confirmPasswordController.text;
 
-  if (fullName == "Admin" &&
-      email == "admin123@gmail.com" &&
-      password == "admin123" &&
-      confirmPassword == "admin123") {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registered Successfully!')),
-    );
-    // Navigate to login page
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-    );
-  } else if (password != confirmPassword) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Passwords do not match!')),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please fill in all fields!')),
-    );
+    if (fullName == "Admin" &&
+        email == "admin123@gmail.com" &&
+        password == "admin123" &&
+        confirmPassword == "admin123") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registered Successfully!')),
+      );
+      // Navigate to login page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } else if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields!')),
+      );
+    }
   }
-}
 
   Widget _buildTextField(
       String label, TextEditingController controller, IconData icon,
