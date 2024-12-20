@@ -15,7 +15,6 @@ class HomePage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to Add Task page or show a dialog
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddTaskView()),
@@ -26,7 +25,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
@@ -59,7 +57,6 @@ class HomePage extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildHomeContent(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 20),
@@ -110,7 +107,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildSearchBar(BuildContext context) {
     return Center(
       child: Container(
@@ -156,7 +152,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -166,7 +161,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildPopularCategories(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double imageSize = screenWidth > 600 ? 180 : 120;
@@ -193,7 +187,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildCategoryCard(String title, String imagePath, double imageSize) {
     return Container(
       decoration: BoxDecoration(
@@ -245,7 +238,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildTaskerPromo() {
     return Container(
       height: 150,
@@ -282,7 +274,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildTopTaskers() {
     return SizedBox(
       height: 280,
@@ -301,7 +292,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildTaskerCard(
       String name, String role, String image, double rating, int reviews) {
     return Container(
