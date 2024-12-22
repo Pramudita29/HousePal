@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:housepal_project/view/dashboard_view.dart';
+import 'package:housepal_project/view/seeker/seeker_dashboard_veiw.dart';
+import 'package:housepal_project/view/helper/helper_dashboard_view.dart';
+// Import Seeker Dashboard
 import 'package:housepal_project/view/registration_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,16 +26,24 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailController.text;
     String password = _passwordController.text;
 
-    // Static login credentials (same as registration)
-    if (email == "admin123@gmail.com" && password == "admin123") {
+    // Here, we're assuming some static email/password combos for simplicity.
+    if (email == "helper@example.com" && password == "helper123") {
+      // If the user is a helper, navigate to the Helper Dashboard
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful!')),
       );
-
-      // Navigate to HomePage
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const DashboardView()),
+        MaterialPageRoute(builder: (context) => const HelperDashboardView()),
+      );
+    } else if (email == "seeker@example.com" && password == "seeker123") {
+      // If the user is a seeker, navigate to the Seeker Dashboard
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login Successful!')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const SeekerDashboardVeiw()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Set background color to white
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           Padding(
@@ -79,9 +89,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(
-                      height:
-                          70), // Add space to avoid overlap with back button
+                  const SizedBox(height: 70),
                   Image.asset(
                     'assets/images/logo.png',
                     height: 60,
@@ -188,13 +196,13 @@ class _LoginPageState extends State<LoginPage> {
 
           // Bigger Back button in the top-left corner
           Positioned(
-            top: 35, // Adjust the top position as needed
-            left: 0, // Align it to the left
+            top: 35,
+            left: 0,
             child: IconButton(
               icon: const Icon(Icons.navigate_before, color: Colors.black),
-              iconSize: 30, // Increase icon size to make it bigger
+              iconSize: 30,
               onPressed: () {
-                Navigator.pop(context); // Navigate back to the previous page
+                Navigator.pop(context);
               },
             ),
           ),
