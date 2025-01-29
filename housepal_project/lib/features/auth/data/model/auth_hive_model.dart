@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:housepal_project/app/constants/hive_table_constant.dart';
 import 'package:housepal_project/features/auth/domain/entity/auth_entity.dart';
-import 'package:uuid/uuid.dart'; // For generating unique user IDs
+import 'package:uuid/uuid.dart';
 
 part 'auth_hive_model.g.dart';
 
@@ -18,7 +18,7 @@ class AuthHiveModel extends Equatable {
   final String email;
 
   @HiveField(3)
-  final String phone;
+  final String contactNo;
 
   @HiveField(4)
   final String password;
@@ -27,63 +27,64 @@ class AuthHiveModel extends Equatable {
   final String role;
 
   @HiveField(6)
-  final List? skills;
+  final List<String>? skills;
 
   @HiveField(7)
   final String? experience;
 
-  // Normal constructor, userId will be generated at runtime
   AuthHiveModel({
     String? userId,
     required this.fullName,
     required this.email,
-    required this.phone,
+    required this.contactNo,
     required this.password,
     required this.role,
     this.skills,
     this.experience,
-  }) : userId = userId ?? Uuid().v4();  // Generate userId only when needed
+  }) : userId = userId ?? const Uuid().v4();
 
-  // Updated initial constructor with proper defaults
   AuthHiveModel.initial()
-      : userId = Uuid().v4(),  // Generate userId at runtime
+      : userId = const Uuid().v4(),
         fullName = '',
         email = '',
-        phone = '',
+        contactNo = '',
         password = '',
         role = '',
-        skills = const [],
+        skills = null,
         experience = null;
 
-  // From Entity
-  factory AuthHiveModel.fromEntity(AuthEntity entity) {
-    return AuthHiveModel(
-      userId: entity.userId,
-      fullName: entity.fullName,
-      email: entity.email,
-      phone: entity.phone,
-      password: entity.password,
-      role: entity.role,
-      skills: entity.skills,
-      experience: entity.experience,
-    );
-  }
+  factory AuthHiveModel.fromEntity(AuthEntity entity) => AuthHiveModel(
+        userId: entity.userId,
+        fullName: entity.fullName,
+        email: entity.email,
+        contactNo: entity.contactNo,
+        password: entity.password,
+        role: entity.role,
+        skills: entity.skills?.cast<String>(),
+        experience: entity.experience,
+      );
 
-  // To Entity
-  AuthEntity toEntity() {
-    return AuthEntity(
-      userId: userId,
-      fullName: fullName,
-      email: email,
-      phone: phone,
-      password: password,
-      role: role,
-      skills: skills,
-      experience: experience, confirmpassword: '',
-    );
-  }
+  AuthEntity toEntity() => AuthEntity(
+        userId: userId,
+        fullName: fullName,
+        email: email,
+        contactNo: contactNo,
+        password: password,
+        confirmPassword: password,
+        role: role,
+        skills: skills,
+        experience: experience,
+      );
 
   @override
-  List<Object?> get props =>
-      [userId, fullName, email, phone, password, role, skills, experience];
+  List<Object?> get props => [
+        userId,
+        fullName,
+        email,
+        contactNo,
+        password,
+        role,
+        skills,
+        experience,
+      ];
 }
