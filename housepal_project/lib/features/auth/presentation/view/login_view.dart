@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:housepal_project/core/network/hive_service.dart';
 import 'package:housepal_project/features/auth/presentation/view/registration_view.dart';
-import 'package:housepal_project/features/auth/presentation/view_model/login/login_bloc.dart'; // Import LoginBloc
+import 'package:housepal_project/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:housepal_project/features/dashboard/presentation/helper/helper_dashboard_view.dart';
-import 'package:housepal_project/features/dashboard/presentation/seeker/seeker_dashboard_view.dart'; // Import Seeker Dashboard
+import 'package:housepal_project/features/dashboard/presentation/seeker/seeker_dashboard_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginPageState();
+  State<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginPageState extends State<LoginView> {
+class _LoginViewState extends State<LoginView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -22,67 +21,6 @@ class _LoginPageState extends State<LoginView> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  void _login() {
-  String email = _emailController.text.trim().toLowerCase();
-  String password = _passwordController.text.trim();
-
-  // Static credentials
-  const String seekerEmail = 'pbhattarai@gmail.com';
-  const String seekerPassword = '123456';
-  const String helperEmail = 'pramudita@gmail.com';
-  const String helperPassword = '123456';
-
-  // Validate input
-  if (email.isEmpty || password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please enter both email and password')),
-    );
-    return;
-  }
-
-  // Check credentials and navigate based on role
-  if (email == seekerEmail && password == seekerPassword) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const SeekerDashboardView()),
-    );
-  } else if (email == helperEmail && password == helperPassword) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HelperDashboardView()),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Invalid email or password')),
-    );
-  }
-}
-
-  Widget _buildTextField(
-      String label, TextEditingController controller, IconData icon,
-      {bool isPassword = false}) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.black54),
-        labelText: label,
-        labelStyle: const TextStyle(
-          fontFamily: 'Poppins',
-          fontSize: 14,
-          color: Colors.black54,
-        ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF4CAF50)),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-      ),
-    );
   }
 
   @override
@@ -129,28 +67,101 @@ class _LoginPageState extends State<LoginView> {
                   _buildTextField('Password', _passwordController, Icons.lock,
                       isPassword: true),
                   const SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF459D7A),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 100),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                  BlocConsumer<LoginBloc, LoginState>(
+                    listener: (context, state) {
+                      if (state.isLoading) {
+                        // Show loading state if needed
+                        print('Loading...');
+                      } else if (state.isSuccess && state.role != null) {
+                        // Debugging: Print the role
+                        print('Login successful: role = ${state.role}');
+
+                        // Navigate to dashboard based on role after login success
+                        if (state.role == "Seeker") {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const SeekerDashboardView()),
+                          );
+                        } else if (state.role == "Helper") {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const HelperDashboardView()),
+                          );
+                        } else {
+                          print('Unknown role: ${state.role}');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Unknown role'),
+                            ),
+                          );
+                        }
+                      } else if (!state.isSuccess && !state.isLoading) {
+                        // Handle failed login attempt
+                        print(
+                            'Login failed: Invalid credentials or unknown error');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Invalid email or password'),
+                          ),
+                        );
+                      }
+                    },
+                    builder: (context, state) {
+                      return Center(
+                        child: ElevatedButton(
+                          onPressed: state.isLoading
+                              ? null
+                              : () {
+                                  final email = _emailController.text.trim();
+                                  final password =
+                                      _passwordController.text.trim();
+
+                                  if (email.isEmpty || password.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Please enter both email and password')),
+                                    );
+                                    return;
+                                  }
+
+                                  // Trigger login process
+                                  context.read<LoginBloc>().add(
+                                        LoginUserEvent(
+                                          email: email,
+                                          password: password,
+                                          context: context,
+                                        ),
+                                      );
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF459D7A),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 100),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 5,
+                          ),
+                          child: state.isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
-                        elevation: 5,
-                      ),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 40),
                   Center(
@@ -159,7 +170,8 @@ class _LoginPageState extends State<LoginView> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const RegisterPage()),
+                            builder: (context) => const RegisterPage(),
+                          ),
                         );
                       },
                       child: const Text(
@@ -200,6 +212,31 @@ class _LoginPageState extends State<LoginView> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+      String label, TextEditingController controller, IconData icon,
+      {bool isPassword = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: Colors.black54),
+        labelText: label,
+        labelStyle: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 14,
+          color: Colors.black54,
+        ),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF4CAF50)),
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
       ),
     );
   }
