@@ -8,21 +8,23 @@ import 'package:housepal_project/features/auth/domain/repository/auth_repository
 class RegisterUserParams extends Equatable {
   final String fullName;
   final String email;
-  final String phone;
+  final String contactNo;
   final String password;
-  final String confirmpassword;
+  final String confirmPassword;
   final String role; // Role can be Seeker or Helper
   final List? skills; // Only for Helper
+  final String? image;
   final String? experience; // Only for Helper
 
   const RegisterUserParams({
     required this.fullName,
     required this.email,
-    required this.phone,
+    required this.contactNo,
     required this.password,
-    required this.confirmpassword,
+    required this.confirmPassword,
     required this.role,
     this.skills,
+    this.image,
     this.experience,
   });
 
@@ -30,22 +32,24 @@ class RegisterUserParams extends Equatable {
   const RegisterUserParams.initial()
       : fullName = '',
         email = '',
-        phone = '',
+        contactNo = '',
         password = '',
-        confirmpassword = '',
+        confirmPassword = '',
         role = '',
         skills = null,
+        image = null,
         experience = null;
 
   @override
   List<Object?> get props => [
         fullName,
         email,
-        phone,
+        contactNo,
         password,
-        confirmpassword,
+        confirmPassword,
         role,
         skills,
+        image,
         experience,
       ];
 }
@@ -60,9 +64,9 @@ class RegisterUseCase implements UsecaseWithParams<void, RegisterUserParams> {
     final authEntity = AuthEntity(
       fullName: params.fullName,
       email: params.email,
-      phone: params.phone,
+      contactNo: params.contactNo,
       password: params.password,
-      confirmpassword: params.confirmpassword,
+      confirmPassword: params.confirmPassword,
       role: params.role,
       skills: params.skills,
       experience: params.experience,
