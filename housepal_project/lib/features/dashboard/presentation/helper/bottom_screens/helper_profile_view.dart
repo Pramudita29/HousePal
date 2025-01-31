@@ -1,7 +1,76 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-class HelperProfileView extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:housepal_project/features/auth/presentation/view_model/signup/register_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+
+class HelperProfileView extends StatefulWidget {
   const HelperProfileView({super.key});
+
+  @override
+  _HelperProfileViewState createState() => _HelperProfileViewState();
+}
+
+class _HelperProfileViewState extends State<HelperProfileView> {
+  XFile? _image; // To store the picked image
+
+  // Function to handle image picking
+  Future<void> _pickImage() async {
+    final pickedImage = await showDialog<XFile>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Pick Image'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera'),
+                onTap: () async {
+                  Navigator.pop(
+                      context,
+                      await ImagePicker()
+                          .pickImage(source: ImageSource.camera));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () async {
+                  Navigator.pop(
+                      context,
+                      await ImagePicker()
+                          .pickImage(source: ImageSource.gallery));
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (pickedImage != null) {
+      setState(() {
+        _image = pickedImage;
+      });
+
+      // Fetch the email from your user model or other state management system
+      String userEmail =
+          'ram01@gmail.com'; // Replace this with actual logic to get email
+
+      // After image is picked, dispatch the event to upload it with the email
+      BlocProvider.of<RegisterBloc>(context).add(
+        UploadProfileImageEvent(
+          image: File(pickedImage.path),
+          role: 'Helper',
+          email: userEmail, // Pass the email here
+          context: context, // Pass the context for snackbar display
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,42 +85,6 @@ class HelperProfileView extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         automaticallyImplyLeading: false, // Remove the back arrow
-        actions: [
-          // Settings Button on the top right
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.settings_outlined, color: Colors.black),
-            onSelected: (value) {
-              // Handle menu item selection
-              switch (value) {
-                case 'Edit Profile':
-                  // Handle Edit Profile action
-                  break;
-                case 'App Theme':
-                  // Handle App Theme action
-                  break;
-                case 'Earnings List':
-                  // Handle Earnings List action
-                  break;
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem<String>(
-                  value: 'Edit Profile',
-                  child: Text('Edit Profile'),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'App Theme',
-                  child: Text('App Theme'),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'Earnings List',
-                  child: Text('Earnings List'),
-                ),
-              ];
-            },
-          ),
-        ],
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -60,21 +93,24 @@ class HelperProfileView extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // Profile Picture, Name, and Qualifications Section
+                // Center-aligned Profile Picture, Name, and Email
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Profile Picture (from assets)
+                    // Profile Picture
                     Stack(
                       children: [
                         Container(
                           width: 100,
                           height: 100,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             image: DecorationImage(
-                              image: AssetImage(
-                                  'assets/images/profile.png'), // your image path here
+                              image: _image != null
+                                  ? FileImage(File(_image!.path))
+                                  : const AssetImage(
+                                          'assets/images/profile.png')
+                                      as ImageProvider,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -82,25 +118,29 @@ class HelperProfileView extends StatelessWidget {
                         Positioned(
                           bottom: 0,
                           right: 0,
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: const Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 16,
+                          child: GestureDetector(
+                            onTap: _pickImage,
+                            child: Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    // Name
+                    // Name (Static for now)
                     const Text(
                       'John Doe',
                       style: TextStyle(
@@ -109,7 +149,6 @@ class HelperProfileView extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    // Email
                     const Text(
                       'johndoe@gmail.com',
                       style: TextStyle(
@@ -122,9 +161,8 @@ class HelperProfileView extends StatelessWidget {
                 const SizedBox(height: 20),
                 const Divider(thickness: 1, color: Color(0xFFEEEEEE)),
                 const SizedBox(height: 10),
-                // Bio Section
                 const Text(
-                  'A dedicated and experienced house helper specializing in cleaning and household management.',
+                  'A dedicated and experienced helper specializing in cleaning and household management.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.grey,
@@ -133,9 +171,8 @@ class HelperProfileView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Experience Section
                 const Text(
-                  'Experience:',
+                  'Experience: ',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 5),
@@ -144,7 +181,6 @@ class HelperProfileView extends StatelessWidget {
                   style: TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 20),
-                // Skills Section with Chip background color and white text
                 const Text(
                   'Skills:',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -200,7 +236,7 @@ class HelperProfileView extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 740),
+                const SizedBox(height: 20),
                 // Logout Button
                 Center(
                   child: TextButton(
