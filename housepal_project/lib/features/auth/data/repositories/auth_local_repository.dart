@@ -25,16 +25,20 @@ class AuthLocalRepository implements IAuthRepository {
   Future<Either<Failure, String>> loginUser(
       String email, String password) async {
     try {
-      // Assuming you have a mechanism to validate credentials (e.g., checking with local DB)
+      // 🔄 Fetch result from local data source
       final result = await _authLocalDataSource.loginUser(email, password);
 
-      // Assuming result can be "Seeker" or "Helper"
-      if (result == "Success") {
-        return Right("Seeker"); // Replace with the actual role logic
+      print("🔍 AuthLocalDataSource Result: $result"); // Debugging line
+
+      if (result == "Seeker" || result == "Helper") {
+        print("✅ Login success: Role = $result");
+        return Right(result);
       } else {
+        print("❌ Login failed: Invalid credentials");
         return Left(LocalDatabaseFailure(message: "Invalid credentials"));
       }
     } catch (e) {
+      print("🚨 Exception during login: $e");
       return Left(LocalDatabaseFailure(message: e.toString()));
     }
   }
@@ -50,7 +54,7 @@ class AuthLocalRepository implements IAuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> uploadProfilePicture(File file) {
+  Future<Either<Failure, String>> uploadProfilePicture(File file, String role, String email) {
     // TODO: implement uploadProfilePicture
     throw UnimplementedError();
   }

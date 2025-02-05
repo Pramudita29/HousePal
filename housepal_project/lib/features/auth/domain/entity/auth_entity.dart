@@ -4,22 +4,24 @@ class AuthEntity extends Equatable {
   final String? userId;
   final String fullName;
   final String email;
-  final String phone;
+  final String contactNo;
   final String password;
-  final String confirmpassword;
+  final String confirmPassword;
   final String role; // Role can be Seeker or Helper
   final List? skills;
+  final String? image;
   final String? experience; // Only for Helper
 
   const AuthEntity({
     this.userId,
     required this.fullName,
     required this.email,
-    required this.phone,
+    required this.contactNo,
     required this.password,
-    required this.confirmpassword,
+    required this.confirmPassword,
     required this.role,
     this.skills,
+    this.image,
     this.experience,
   });
 
@@ -28,11 +30,12 @@ class AuthEntity extends Equatable {
         userId,
         fullName,
         email,
-        phone,
+        contactNo,
         password,
-        confirmpassword,
+        confirmPassword,
         role,
         skills,
+        image,
         experience,
       ];
 }
