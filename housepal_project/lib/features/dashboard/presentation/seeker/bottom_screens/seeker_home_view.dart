@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:housepal_project/features/dashboard/presentation/seeker/bottom_screens/add_task_view.dart';
 
 class SeekerHomeView extends StatelessWidget {
-  const SeekerHomeView({super.key});
+  final String fullName;
+
+  const SeekerHomeView({super.key, required this.fullName});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,7 @@ class SeekerHomeView extends StatelessWidget {
       ),
     );
   }
+
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
@@ -57,6 +60,7 @@ class SeekerHomeView extends StatelessWidget {
       ],
     );
   }
+
   Widget _buildHomeContent(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 20),
@@ -81,25 +85,25 @@ class SeekerHomeView extends StatelessWidget {
   }
 
   Widget _buildHeaderSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Welcome!",
                 style: TextStyle(fontSize: 28, fontFamily: 'Poppins'),
               ),
               Text(
-                "User",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+                fullName,  // Display dynamic full name here
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
               ),
             ],
           ),
-          CircleAvatar(
+          const CircleAvatar(
             radius: 20,
             backgroundImage: AssetImage('assets/images/profile.png'),
           ),
@@ -107,6 +111,7 @@ class SeekerHomeView extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildSearchBar(BuildContext context) {
     return Center(
       child: Container(
@@ -152,6 +157,7 @@ class SeekerHomeView extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -161,6 +167,7 @@ class SeekerHomeView extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildPopularCategories(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double imageSize = screenWidth > 600 ? 180 : 120;
@@ -187,6 +194,7 @@ class SeekerHomeView extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildCategoryCard(String title, String imagePath, double imageSize) {
     return Container(
       decoration: BoxDecoration(
@@ -238,6 +246,7 @@ class SeekerHomeView extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildTaskerPromo() {
     return Container(
       height: 150,
@@ -274,6 +283,7 @@ class SeekerHomeView extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildTopTaskers() {
     return SizedBox(
       height: 280,
@@ -292,6 +302,7 @@ class SeekerHomeView extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildTaskerCard(
       String name, String role, String image, double rating, int reviews) {
     return Container(

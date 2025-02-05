@@ -18,7 +18,7 @@ class SeekerDashboardView extends StatelessWidget {
         body: BlocBuilder<SeekerDashboardCubit, int>(
           builder: (context, currentIndex) {
             final pages = [
-              const SeekerHomeView(),
+              const SeekerHomeView(fullName: '',),
               const SeekerCategoryView(),
               const SeekerBookingView(),
               const SeekerProfileView(),
