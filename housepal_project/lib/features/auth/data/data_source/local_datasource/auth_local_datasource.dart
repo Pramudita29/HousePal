@@ -14,25 +14,34 @@ class AuthLocalDataSource implements IAuthDataSource {
   Future<AuthEntity> getCurrentUser() {
     // Return Empty AuthEntity
     return Future.value(AuthEntity(
-      userId: "1",
-      fullName: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmpassword: "",
-      role: "",
-      skills: [],
-      experience: ""
-    ));
+        userId: "1",
+        fullName: "",
+        email: "",
+        contactNo: "",
+        password: "",
+        confirmPassword: "",
+        role: "",
+        skills: [],
+        image:"",
+        experience: ""));
   }
 
   @override
   Future<String> loginUser(String email, String password) async {
     try {
-      await _hiveService.login(email, password);
-      return Future.value("Success");
+      // Try to log in the user and retrieve their role
+      final user = await _hiveService.login(email, password);
+
+      // Null check before accessing user.role
+      if (user != null) {
+        // Return the role of the user, which will be used for navigation
+        return user.role; // Return the role (Seeker or Helper)
+      } else {
+        // Handle case where user is null (e.g., invalid credentials)
+        return Future.error("Invalid credentials");
+      }
     } catch (e) {
-      return Future.error(e);
+      return Future.error(e); // Handle error and propagate
     }
   }
 
@@ -50,7 +59,7 @@ class AuthLocalDataSource implements IAuthDataSource {
   }
 
   @override
-  Future<String> uploadProfilePicture(File file) {
+  Future<String> uploadProfilePicture(File file, String role, String email) {
     throw UnimplementedError();
   }
 }
