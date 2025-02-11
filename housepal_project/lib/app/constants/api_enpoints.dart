@@ -6,6 +6,7 @@ class ApiEndpoints {
 
   // Base URL of your backend (ensure this IP is correct and accessible)
   static const String baseUrl = "http://10.0.2.2:3000/api/";
+  // static const String baseUrl = "http://172.26.0.152:3000/api/";
 
   //*************Authentication Route***********
   static const String register = "auth/register"; // POST: /auth/register
@@ -23,7 +24,8 @@ class ApiEndpoints {
       "${baseUrl}helper/task/$taskId/complete"; // PATCH: /helper/task/:taskId/complete
   static const String getHelperDashboard =
       "${baseUrl}helper/dashboard"; // GET: /helper/dashboard
-  static const String getCurrentHelper = "${baseUrl}helper/current"; // GET: /helper/current
+  static const String getCurrentHelper =
+      "${baseUrl}helper/current"; // GET: /helper/current
 
   //*************Seeker Route***********
   static String getAllSeeker = "${baseUrl}seeker"; // GET: /seeker
@@ -33,7 +35,8 @@ class ApiEndpoints {
       "${baseUrl}seeker/$id"; // PUT: /seeker/:id
   static String deleteSeeker(String id) =>
       "${baseUrl}seeker/$id"; // DELETE: /seeker/:id
-  static const String getCurrentSeeker = "${baseUrl}seeker/current"; // GET: /seeker/current
+  static const String getCurrentSeeker =
+      "${baseUrl}seeker/current"; // GET: /seeker/current
 
   //*************Image Upload Route***********
   static String uploadHelperImage =
