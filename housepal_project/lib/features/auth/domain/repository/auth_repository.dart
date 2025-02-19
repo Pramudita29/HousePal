@@ -9,7 +9,9 @@ abstract interface class IAuthRepository {
 
   Future<Either<Failure, String>> loginUser(String email, String password);
 
-  Future<Either<Failure, String>> uploadProfilePicture(File file, String role, String email);
+  Future<Either<Failure, String>> uploadProfilePicture(
+      File file, String role, String email);
 
   Future<Either<Failure, AuthEntity>> getCurrentUser();
+  Future<Either<Failure, AuthEntity>> updateUser(AuthEntity user, String token);
 }

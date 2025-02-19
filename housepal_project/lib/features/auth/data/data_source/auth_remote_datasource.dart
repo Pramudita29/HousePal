@@ -12,71 +12,25 @@ class AuthRemoteDataSource implements IAuthDataSource {
 
   AuthRemoteDataSource(this._dio);
 
-
-  @override
-  Future<AuthEntity> getCurrentUser() async {
-    try {
-      // Retrieve token and role from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      final role = prefs.getString('role');
-
-      if (token == null || token.isEmpty) {
-        throw Exception("No authentication token found");
-      }
-
-      if (role == null || role.isEmpty) {
-        throw Exception("No user role found");
-      }
-
-      // Call the appropriate method based on the user's role
-      if (role == 'Helper') {
-        return await getCurrentHelper(token);
-      } else if (role == 'Seeker') {
-        return await getCurrentSeeker(token);
-      } else {
-        throw Exception("Invalid user role");
-      }
-    } catch (e) {
-      throw Exception("Error fetching current user: $e");
-    }
-  }
-
-  // Method for fetching the current Helper user
-  Future<AuthEntity> getCurrentHelper(String token) async {
+ @override
+  Future<AuthEntity> getCurrentUser(String token) async {
     try {
       final response = await _dio.get(
-        ApiEndpoints.getCurrentHelper,
-        options: Options(headers: {"Authorization": "Bearer $token"}),
+        ApiEndpoints.getCurrentUser,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
       );
 
       if (response.statusCode == 200) {
-        final authApiModel = AuthApiModel.fromJson(response.data);
-        return authApiModel.toEntity();
+        final data = AuthApiModel.fromJson(response.data);
+        return data.toEntity();
       } else {
-        throw Exception("Failed to fetch current Helper data: ${response.statusMessage}");
+        throw Exception("Failed to fetch user data");
       }
     } catch (e) {
-      throw Exception("Error fetching current Helper: $e");
-    }
-  }
-
-  // Method for fetching the current Seeker user
-  Future<AuthEntity> getCurrentSeeker(String token) async {
-    try {
-      final response = await _dio.get(
-        ApiEndpoints.getCurrentSeeker,
-        options: Options(headers: {"Authorization": "Bearer $token"}),
-      );
-
-      if (response.statusCode == 200) {
-        final authApiModel = AuthApiModel.fromJson(response.data);
-        return authApiModel.toEntity();
-      } else {
-        throw Exception("Failed to fetch current Seeker data: ${response.statusMessage}");
-      }
-    } catch (e) {
-      throw Exception("Error fetching current Seeker: $e");
+      print("Error in getCurrentUser: $e");
+      rethrow;
     }
   }
 
@@ -84,22 +38,53 @@ class AuthRemoteDataSource implements IAuthDataSource {
   @override
   Future<String> loginUser(String email, String password) async {
     try {
-      // Send the login request to the backend
-      Response response = await _dio.post(ApiEndpoints.login, data: {
-        "email": email,
-        "password": password,
-      });
+      Response response = await _dio.post(
+        ApiEndpoints.login,
+        data: {
+          "email": email,
+          "password": password,
+        },
+      );
 
-      // Check if login was successful
-      if (response.statusCode == 200) {
-        // Return the authentication token
-        return response.data[
-            'token']; // Assuming the token is returned in the response body
+      // Print the API Response
+      print("Login API Response: ${response.data}");
+
+      if (response.statusCode == 200 && response.data != null) {
+        String? token = response.data['token'];
+
+        if (token == null || token.isEmpty) {
+          throw Exception("Login failed: Token is missing in response");
+        }
+
+        // Access the user data from the 'user' field
+        var user = response.data['user'];
+
+        // Ensure user data is available
+        if (user == null) {
+          throw Exception("Login failed: User data is missing in response");
+        }
+
+        // Validate and format the image URL
+        String? image = user['image'] ?? '';
+        if (image != null && !image.startsWith('http')) {
+          image = ''; // No valid image URL, use initials instead
+        }
+
+        // Save the token and user details in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        await prefs.setString('posterFullName', user['fullName'] ?? '');
+        await prefs.setString('posterEmail', user['email'] ?? '');
+
+        // Print the saved token and user details
+        print("Token and user details saved successfully!");
+
+        return token;
       } else {
         throw Exception("Login failed: ${response.statusMessage}");
       }
     } on DioException catch (e) {
-      throw Exception("Login error: ${e.message}");
+      throw Exception("Login error: ${e.response?.data ?? e.message}");
     }
   }
 
@@ -111,21 +96,17 @@ class AuthRemoteDataSource implements IAuthDataSource {
         data: {
           "fullName": user.fullName,
           "email": user.email,
-          "contactNo":
-              user.contactNo, // This should match `contact_no` in the backend
+          "contactNo": user.contactNo,
           "password": user.password,
-          // "confirmPassword":
-          //     user.confirmPassword, // Ensure it matches the backend
+          "confirmPassword": user.password,
           "role": user.role,
-          "skills": user.skills, // Make sure it's in the expected format (list)
+          "skills": user.skills,
           "image": user.image,
           "experience": user.experience,
         },
       );
 
-      if (response.statusCode == 201) {
-        return; // Registration successful
-      } else {
+      if (response.statusCode != 201) {
         throw Exception("Registration failed: ${response.statusMessage}");
       }
     } on DioException catch (e) {
@@ -134,27 +115,87 @@ class AuthRemoteDataSource implements IAuthDataSource {
   }
 
   @override
-  Future<String> uploadProfilePicture(File file, String role, String email) async {
-  try {
-    String fileName = file.path.split('/').last;
-    FormData formData = FormData.fromMap({
-      'image': await MultipartFile.fromFile(file.path, filename: fileName),
-      'email': email, // Add the email here
-    });
+  Future<String> uploadProfilePicture(
+      File file, String role, String email) async {
+    try {
+      String fileName = file.path.split('/').last;
 
-    // Select the correct endpoint based on the role
-    String endpoint = role == 'Helper' ? ApiEndpoints.uploadHelperImage : ApiEndpoints.uploadSeekerImage;
+      FormData formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(file.path, filename: fileName),
+        'email': email,
+        'role': role,
+      });
 
-    Response response = await _dio.post(endpoint, data: formData);
+      String endpoint = role == 'Helper'
+          ? ApiEndpoints.uploadHelperImage
+          : ApiEndpoints.uploadSeekerImage;
 
-    if (response.statusCode == 200) {
-      return response.data['data']; // Assuming this is the image name or URL returned by the backend
-    } else {
-      throw Exception(response.statusMessage);
+      // Send the image upload request to the server
+      Response response = await _dio.post(endpoint, data: formData);
+
+      if (response.statusCode == 200 && response.data['imageUrl'] != null) {
+        String imageUrl = response.data['imageUrl'];
+
+        // Ensure the URL is fully qualified
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+          return imageUrl; // Return the full URL if it's already correct
+        } else {
+          // Prepend the base URL if the server only returns a relative path
+          final baseUrl =
+              ApiEndpoints.baseUrl; // Example: 'http://yourserver.com'
+          return '$baseUrl$imageUrl'; // Concatenate base URL with the image path
+        }
+      } else {
+        throw Exception(response.data['message'] ?? "Image upload failed");
+      }
+    } on DioException catch (e) {
+      String errorMessage =
+          e.response?.data['message'] ?? e.message ?? "Unknown error occurred";
+      print('Error during image upload: $errorMessage');
+      throw Exception("Error during image upload: $errorMessage");
+    } catch (e) {
+      print('Unexpected error: $e');
+      throw Exception("Unexpected error: $e");
     }
-  } on DioException catch (e) {
-    throw Exception(e.message);
   }
-}
 
+  @override
+  Future<AuthEntity> updateUser(AuthEntity user, String token) async {
+    try {
+      // Determine the endpoint based on the user's role
+      String endpoint;
+      if (user.role == 'Helper') {
+        endpoint = ApiEndpoints.updateHelper(user.userId ?? '');
+      } else if (user.role == 'Seeker') {
+        endpoint = ApiEndpoints.updateSeeker(user.userId ?? '');
+      } else {
+        throw Exception("Invalid user role");
+      }
+
+      final response = await _dio.put(
+        endpoint,
+        data: {
+          "fullName": user.fullName,
+          "email": user.email,
+          "contactNo": user.contactNo,
+          "skills": user.skills,
+          "image": user.image,
+          "experience": user.experience,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final updatedUser = AuthApiModel.fromJson(response.data);
+        return updatedUser.toEntity();
+      } else {
+        throw Exception("Failed to update user");
+      }
+    } catch (e) {
+      print("Error in updateUser: $e");
+      rethrow;
+    }
+  }
 }

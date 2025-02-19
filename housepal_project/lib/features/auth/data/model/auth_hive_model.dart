@@ -24,12 +24,15 @@ class AuthHiveModel extends Equatable {
   final String password;
 
   @HiveField(5)
-  final String role;
+  final String confirmPassword;
 
   @HiveField(6)
-  final List<String>? skills;
+  final String role;
 
   @HiveField(7)
+  final List<String>? skills;
+
+  @HiveField(8)
   final String? experience;
 
   AuthHiveModel({
@@ -38,6 +41,7 @@ class AuthHiveModel extends Equatable {
     required this.email,
     required this.contactNo,
     required this.password,
+    required this.confirmPassword,
     required this.role,
     this.skills,
     this.experience,
@@ -49,6 +53,7 @@ class AuthHiveModel extends Equatable {
         email = '',
         contactNo = '',
         password = '',
+        confirmPassword = '',
         role = '',
         skills = null,
         experience = null;
@@ -59,6 +64,7 @@ class AuthHiveModel extends Equatable {
         email: entity.email,
         contactNo: entity.contactNo,
         password: entity.password,
+        confirmPassword: entity.confirmPassword,
         role: entity.role,
         skills: entity.skills?.cast<String>(),
         experience: entity.experience,
@@ -83,6 +89,7 @@ class AuthHiveModel extends Equatable {
         email,
         contactNo,
         password,
+        confirmPassword,
         role,
         skills,
         experience,

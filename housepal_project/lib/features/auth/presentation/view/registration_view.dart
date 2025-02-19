@@ -49,7 +49,9 @@ class _RegisterPageState extends State<RegisterPage> {
     // Validation checks
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match!'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Passwords do not match!'),
+            backgroundColor: Colors.red),
       );
     } else if (fullName.isEmpty ||
         email.isEmpty ||
@@ -57,21 +59,24 @@ class _RegisterPageState extends State<RegisterPage> {
         contactNo.isEmpty ||
         _selectedRole == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields!'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Please fill in all fields!'),
+            backgroundColor: Colors.red),
       );
     } else if (_selectedRole == 'Helper' &&
         (skills.isEmpty || experience.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in skills and experience!'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Please fill in skills and experience!'),
+            backgroundColor: Colors.red),
       );
     } else {
       context.read<RegisterBloc>().add(RegisterUserEvent(
-            context: context,
             fullName: fullName,
             email: email,
             contactNo: contactNo,
             password: password,
-            confirmpassword: confirmPassword,
+            confirmPassword: confirmPassword,
             role: _selectedRole!,
             skills: skillsList,
             experience: experienceString,
@@ -149,7 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                   ),
-                  if (_selectedRole == 'Helper') ...[ 
+                  if (_selectedRole == 'Helper') ...[
                     const SizedBox(height: 12),
                     _buildTextField('Skills', _skillsController, Icons.star),
                     const SizedBox(height: 12),

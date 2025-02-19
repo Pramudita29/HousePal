@@ -11,10 +11,10 @@ class RegisterUserParams extends Equatable {
   final String contactNo;
   final String password;
   final String confirmPassword;
-  final String role; // Role can be Seeker or Helper
-  final List? skills; // Only for Helper
-  final String? image;
-  final String? experience; // Only for Helper
+  final String role;
+  final List? skills;
+  final String? image; // Non-nullable, defaults to empty string
+  final String? experience; // Non-nullable, defaults to empty string
 
   const RegisterUserParams({
     required this.fullName,
@@ -24,21 +24,9 @@ class RegisterUserParams extends Equatable {
     required this.confirmPassword,
     required this.role,
     this.skills,
-    this.image,
-    this.experience,
+    this.image, // Default to empty string if not provided
+    this.experience , // Default to empty string if not provided
   });
-
-  // Initial constructor for default state
-  const RegisterUserParams.initial()
-      : fullName = '',
-        email = '',
-        contactNo = '',
-        password = '',
-        confirmPassword = '',
-        role = '',
-        skills = null,
-        image = null,
-        experience = null;
 
   @override
   List<Object?> get props => [
@@ -48,19 +36,19 @@ class RegisterUserParams extends Equatable {
         password,
         confirmPassword,
         role,
-        skills,
-        image,
-        experience,
+        skills, // Provide an empty list as fallback for skills
+        image, // Will never be null now
+        experience, // Will never be null now
       ];
 }
 
-class RegisterUseCase implements UsecaseWithParams<void, RegisterUserParams> {
+class RegisterUseCase implements UsecaseWithParams<void, AuthEntity> {
   final IAuthRepository repository;
 
   RegisterUseCase(this.repository);
 
   @override
-  Future<Either<Failure, void>> call(RegisterUserParams params) async {
+  Future<Either<Failure, void>> call(AuthEntity params) async {
     final authEntity = AuthEntity(
       fullName: params.fullName,
       email: params.email,
@@ -73,6 +61,6 @@ class RegisterUseCase implements UsecaseWithParams<void, RegisterUserParams> {
     );
 
     // Call the repository to register the user
-    return repository.registerUser(authEntity);
+    return repository.registerUser(params);
   }
 }

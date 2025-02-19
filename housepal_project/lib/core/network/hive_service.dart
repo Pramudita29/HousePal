@@ -12,7 +12,9 @@ class HiveService {
       Hive.init(path);
 
       // Register AuthHiveModel adapter
-      Hive.registerAdapter(AuthHiveModelAdapter());
+      if (!Hive.isAdapterRegistered(AuthHiveModelAdapter().typeId)) {
+        Hive.registerAdapter(AuthHiveModelAdapter());
+      }
     } catch (e) {
       throw Exception("Hive initialization failed: $e");
     }
@@ -73,6 +75,49 @@ class HiveService {
       print("✅ Registered ${auth.role ?? 'Unknown'}: ${auth.fullName}");
     } catch (e) {
       throw Exception("Error registering user: $e");
+    }
+  }
+
+  // Get the current authenticated user
+  Future<AuthHiveModel?> getCurrentUser() async {
+    try {
+      var seekerBox =
+          await Hive.openBox<AuthHiveModel>(HiveTableConstant.seekerBox);
+      var helperBox =
+          await Hive.openBox<AuthHiveModel>(HiveTableConstant.helperBox);
+
+      // Check Seeker box
+      if (seekerBox.isNotEmpty) {
+        return seekerBox.values.first;
+      }
+
+      // Check Helper box
+      if (helperBox.isNotEmpty) {
+        return helperBox.values.first;
+      }
+
+      print("❌ No authenticated user found.");
+      return null; // Return null if no authenticated user is found
+    } catch (e) {
+      throw Exception("Error retrieving current user: $e");
+    }
+  }
+
+  // Update existing user details
+  Future<void> updateUser(AuthHiveModel updatedUser) async {
+    try {
+      var box = await Hive.openBox<AuthHiveModel>(updatedUser.role == "Seeker"
+          ? HiveTableConstant.seekerBox
+          : HiveTableConstant.helperBox);
+
+      if (box.containsKey(updatedUser.userId)) {
+        await box.put(updatedUser.userId, updatedUser);
+        print("✅ Updated user: ${updatedUser.fullName}");
+      } else {
+        throw Exception("User not found for update.");
+      }
+    } catch (e) {
+      throw Exception("Error updating user: $e");
     }
   }
 
