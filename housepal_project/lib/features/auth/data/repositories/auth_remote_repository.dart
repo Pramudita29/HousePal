@@ -12,33 +12,25 @@ class AuthRemoteRepository implements IAuthRepository {
 
   AuthRemoteRepository(this._authRemoteDataSource);
 
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   @override
   Future<Either<Failure, AuthEntity>> getCurrentUser() async {
     try {
-      // Retrieve the stored token and role from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      final role = prefs
-          .getString('role'); // Assuming role is stored in SharedPreferences
+      final token = await _getToken();
 
       if (token == null || token.isEmpty) {
-        return Left(ApiFailure(message: "No authentication token found"));
+        return Left(
+            SharedPrefsFailure(message: "No authentication token found"));
       }
 
-      if (role == null || role.isEmpty) {
-        return Left(ApiFailure(message: "No user role found"));
-      }
-
-      // Call the appropriate method based on the user's role
-      final user = role == 'Helper'
-          ? await _authRemoteDataSource.getCurrentHelper(token)
-          : role == 'Seeker'
-              ? await _authRemoteDataSource.getCurrentSeeker(token)
-              : throw Exception("Invalid user role");
-
-      return Right(user); // Return the user entity
+      final user = await _authRemoteDataSource.getCurrentUser(token);
+      return Right(user);
     } catch (e) {
-      return Left(ApiFailure(message: e.toString()));
+      return Left(ApiFailure(message: "Failed to fetch user data: $e"));
     }
   }
 
@@ -46,23 +38,31 @@ class AuthRemoteRepository implements IAuthRepository {
   Future<Either<Failure, String>> loginUser(
       String email, String password) async {
     try {
-      // Login the user
       final token = await _authRemoteDataSource.loginUser(email, password);
-      return Right(token); // Return the JWT token
+
+      if (token.isEmpty) {
+        return Left(
+            SharedPrefsFailure(message: "No authentication token found"));
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
+
+      return Right(token);
     } catch (e) {
-      return Left(ApiFailure(message: e.toString()));
+      return Left(ApiFailure(message: "Failed to login user: $e"));
     }
   }
 
   @override
   Future<Either<Failure, void>> registerUser(AuthEntity user) async {
     try {
-      // Register user via the remote data source
-      await _authRemoteDataSource.registerUser(user);
-      return const Right(null); // Return success if registration is successful
+      await _authRemoteDataSource.registerUser(user); // Register user
+      await saveUserData(user); // Save user details locally
+
+      return const Right(null);
     } catch (e) {
-      return Left(ApiFailure(
-          message: e.toString())); // Return error if registration fails
+      return Left(ApiFailure(message: "Failed to register user: $e"));
     }
   }
 
@@ -70,12 +70,43 @@ class AuthRemoteRepository implements IAuthRepository {
   Future<Either<Failure, String>> uploadProfilePicture(
       File file, String role, String email) async {
     try {
-      // Upload profile picture via the remote data source, passing the role and email
-      final imageName = await _authRemoteDataSource.uploadProfilePicture(
-          file, role, email);
-      return Right(imageName);
+      final imageUrl =
+          await _authRemoteDataSource.uploadProfilePicture(file, role, email);
+      return Right(imageUrl); // Return the image URL
     } catch (e) {
-      return Left(ApiFailure(message: e.toString()));
+      return Left(ApiFailure(message: "Failed to upload profile picture: $e"));
     }
+  }
+
+  @override
+  Future<Either<Failure, AuthEntity>> updateUser(
+      AuthEntity user, String token) async {
+    try {
+      if (token.isEmpty) {
+        return Left(
+            SharedPrefsFailure(message: "No authentication token found"));
+      }
+
+      final updatedUser = await _authRemoteDataSource.updateUser(user, token);
+
+      await saveUserData(updatedUser); // Optionally, save updated user data
+
+      return Right(updatedUser);
+    } catch (e) {
+      return Left(ApiFailure(message: "Failed to update user: $e"));
+    }
+  }
+
+  // Function to save user data in SharedPreferences
+  Future<void> saveUserData(AuthEntity user) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('seekerId', user.userId ?? '');
+    await prefs.setString('fullName', user.fullName);
+    await prefs.setString('email', user.email);
+    await prefs.setString('contactNo', user.contactNo);
+    await prefs.setString('role', user.role);
+
+    print("User data saved successfully");
   }
 }

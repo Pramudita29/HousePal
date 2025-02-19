@@ -10,15 +10,10 @@ class AuthApiModel extends Equatable {
   final String? id;
 
   final String fullName;
-
   final String contactNo;
-
   final String email;
-
   final String password;
-
   final String confirmPassword;
-
   final String role;
   final List? skills;
   final String? image;
@@ -42,24 +37,22 @@ class AuthApiModel extends Equatable {
 
   Map<String, dynamic> toJson() => _$AuthApiModelToJson(this);
 
-  // To Entity
   AuthEntity toEntity() {
     return AuthEntity(
-      userId: id,
+      userId: id ?? '',
       fullName: fullName,
       email: email,
       contactNo: contactNo,
       password: password,
       confirmPassword: confirmPassword,
       role: role,
-      skills: skills,
-      image: image,
-      experience: experience,
+      skills: skills ?? [],
+      image: image ?? '',
+      experience: experience ?? '',
     );
   }
 
-  // From Entity
-  factory AuthApiModel.fromEntity(AuthEntity entity) {
+  static AuthApiModel fromEntity(AuthEntity entity) {
     return AuthApiModel(
       id: entity.userId,
       fullName: entity.fullName,
