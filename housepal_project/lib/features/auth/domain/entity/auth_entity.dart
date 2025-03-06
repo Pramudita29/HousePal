@@ -1,41 +1,40 @@
-import 'package:equatable/equatable.dart';
-
-class AuthEntity extends Equatable {
+class AuthEntity {
   final String? userId;
   final String fullName;
   final String email;
   final String contactNo;
   final String password;
-  final String confirmPassword;
-  final String role; // Role can be Seeker or Helper
-  final List? skills;
+  final String role;
+  final List<String>? skills;
+  final String? experience;
   final String? image;
-  final String? experience; // Only for Helper
+  final String confirmPassword;
 
-  const AuthEntity({
+  AuthEntity({
     this.userId,
     required this.fullName,
     required this.email,
     required this.contactNo,
     required this.password,
-    required this.confirmPassword,
     required this.role,
     this.skills,
-    this.image,
     this.experience,
+    this.image,
+    required this.confirmPassword,
   });
 
-  @override
-  List<Object?> get props => [
-        userId,
-        fullName,
-        email,
-        contactNo,
-        password,
-        confirmPassword,
-        role,
-        skills,
-        image,
-        experience,
-      ];
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': userId,
+      'fullName': fullName,
+      'email': email,
+      'contactNo': contactNo,
+      'password': password,
+      'role': role,
+      'skills': skills,
+      'experience': experience,
+      'image': image,
+      'confirmPassword': confirmPassword,
+    };
+  }
 }

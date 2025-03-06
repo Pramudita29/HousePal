@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:housepal_project/features/auth/presentation/view/registration_view.dart';
 import 'package:housepal_project/features/auth/presentation/view_model/login/login_bloc.dart';
-import 'package:housepal_project/features/dashboard/presentation/helper/helper_dashboard_view.dart';
-import 'package:housepal_project/features/dashboard/presentation/seeker/seeker_dashboard_view.dart';
+import 'package:housepal_project/features/auth/presentation/widget/common_widget.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -62,50 +61,31 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _buildTextField('Email', _emailController, Icons.email),
+                  CustomTextField(
+                    label: 'Email',
+                    controller: _emailController,
+                    icon: Icons.email,
+                  ),
                   const SizedBox(height: 12),
-                  _buildTextField('Password', _passwordController, Icons.lock,
-                      isPassword: true),
+                  CustomTextField(
+                    label: 'Password',
+                    controller: _passwordController,
+                    icon: Icons.lock,
+                    isPassword: true,
+                  ),
                   const SizedBox(height: 20),
                   BlocConsumer<LoginBloc, LoginState>(
                     listener: (context, state) {
                       if (state.isLoading) {
-                        // Show loading state if needed
                         print('Loading...');
-                      } else if (state.isSuccess && state.role != null) {
-                        // Debugging: Print the role
-                        print('Login successful: role = ${state.role}');
-
-                        // Navigate to dashboard based on role after login success
-                        if (state.role == "Seeker") {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const SeekerDashboardView()),
-                          );
-                        } else if (state.role == "Helper") {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const HelperDashboardView()),
-                          );
-                        } else {
-                          print('Unknown role: ${state.role}');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Unknown role'),
-                            ),
-                          );
-                        }
                       } else if (!state.isSuccess && !state.isLoading) {
-                        // Handle failed login attempt
+                        // Show error message from state if login fails
                         print(
-                            'Login failed: Invalid credentials or unknown error');
+                            'Login failed: ${state.errorMessage ?? "Unknown error"}');
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Invalid email or password'),
+                          SnackBar(
+                            content: Text(state.errorMessage ?? 'Login failed'),
+                            backgroundColor: Colors.red,
                           ),
                         );
                       }
@@ -123,8 +103,10 @@ class _LoginViewState extends State<LoginView> {
                                   if (email.isEmpty || password.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                          content: Text(
-                                              'Please enter both email and password')),
+                                        content: Text(
+                                            'Please enter both email and password'),
+                                        backgroundColor: Colors.red,
+                                      ),
                                     );
                                     return;
                                   }
@@ -212,31 +194,6 @@ class _LoginViewState extends State<LoginView> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-      String label, TextEditingController controller, IconData icon,
-      {bool isPassword = false}) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.black54),
-        labelText: label,
-        labelStyle: const TextStyle(
-          fontFamily: 'Poppins',
-          fontSize: 14,
-          color: Colors.black54,
-        ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF4CAF50)),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
       ),
     );
   }

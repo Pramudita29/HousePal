@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:housepal_project/features/auth/presentation/view/login_view.dart';
 import 'package:housepal_project/features/auth/presentation/view_model/signup/register_bloc.dart';
+import 'package:housepal_project/features/auth/presentation/widget/common_widget.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -123,20 +124,37 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _buildTextField(
-                      'Full Name', _fullNameController, Icons.person),
+                  CustomTextField(
+                    label: 'Full Name',
+                    controller: _fullNameController,
+                    icon: Icons.person,
+                  ),
                   const SizedBox(height: 12),
-                  _buildTextField('Email', _emailController, Icons.email),
+                  CustomTextField(
+                    label: 'Email',
+                    controller: _emailController,
+                    icon: Icons.email,
+                  ),
                   const SizedBox(height: 12),
-                  _buildTextField(
-                      'Contact Number', _contactNoController, Icons.phone),
+                  CustomTextField(
+                    label: 'Contact Number',
+                    controller: _contactNoController,
+                    icon: Icons.phone,
+                  ),
                   const SizedBox(height: 12),
-                  _buildTextField('Password', _passwordController, Icons.lock,
-                      isPassword: true),
+                  CustomTextField(
+                    label: 'Password',
+                    controller: _passwordController,
+                    icon: Icons.lock,
+                    isPassword: true,
+                  ),
                   const SizedBox(height: 12),
-                  _buildTextField('Confirm Password',
-                      _confirmPasswordController, Icons.lock_outline,
-                      isPassword: true),
+                  CustomTextField(
+                    label: 'Confirm Password',
+                    controller: _confirmPasswordController,
+                    icon: Icons.lock_outline,
+                    isPassword: true,
+                  ),
                   const SizedBox(height: 20),
                   DropdownButtonFormField<String>(
                     value: _selectedRole,
@@ -156,10 +174,17 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   if (_selectedRole == 'Helper') ...[
                     const SizedBox(height: 12),
-                    _buildTextField('Skills', _skillsController, Icons.star),
+                    CustomTextField(
+                      label: 'Skills',
+                      controller: _skillsController,
+                      icon: Icons.star,
+                    ),
                     const SizedBox(height: 12),
-                    _buildTextField(
-                        'Experience', _experienceController, Icons.work),
+                    CustomTextField(
+                      label: 'Experience',
+                      controller: _experienceController,
+                      icon: Icons.work,
+                    ),
                   ],
                   const SizedBox(height: 20),
                   BlocConsumer<RegisterBloc, RegisterState>(
@@ -251,26 +276,6 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-      String label, TextEditingController controller, IconData icon,
-      {bool isPassword = false}) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.black54),
-        labelText: label,
-        labelStyle: const TextStyle(
-            fontFamily: 'Poppins', fontSize: 14, color: Colors.black54),
-        enabledBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey)),
-        focusedBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF4CAF50))),
-        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
       ),
     );
   }

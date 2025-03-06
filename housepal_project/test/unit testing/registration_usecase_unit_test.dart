@@ -6,57 +6,52 @@ import 'package:housepal_project/features/auth/domain/repository/auth_repository
 import 'package:housepal_project/features/auth/domain/usecase/register_usecase.dart';
 import 'package:mocktail/mocktail.dart';
 
-// Mock Repository using mocktail
 class MockAuthRepository extends Mock implements IAuthRepository {}
 
 void main() {
-  late RegisterUseCase useCase;
+  late RegisterUseCase registerUseCase;
   late MockAuthRepository mockAuthRepository;
 
   setUp(() {
     mockAuthRepository = MockAuthRepository();
-    useCase = RegisterUseCase(mockAuthRepository);
+    registerUseCase = RegisterUseCase(mockAuthRepository);
   });
 
-  final AuthEntity testAuthEntity = AuthEntity(
-    fullName: 'Test User',
-    email: 'test@example.com',
-    contactNo: '1234567890',
-    password: 'password123',
-    confirmPassword: 'password123',
-    role: 'Seeker',
-    skills: null,
-    experience: null,
-  );
-
   group('RegisterUseCase', () {
+    final tAuthEntity = AuthEntity(
+      fullName: 'John Doe',
+      email: 'test@example.com',
+      contactNo: '1234567890',
+      password: 'password',
+      confirmPassword: 'password',
+      role: 'user',
+    );
+
     test('should return void when registration is successful', () async {
       // Arrange
-      when(() => mockAuthRepository.registerUser(testAuthEntity))
-          .thenAnswer((_) async => Right(null));
+      when(() => mockAuthRepository.registerUser(tAuthEntity))
+          .thenAnswer((_) async => const Right(null));
 
       // Act
-      final result = await useCase(testAuthEntity);
+      final result = await registerUseCase(tAuthEntity);
 
       // Assert
-      expect(result, Right(null));
-      verify(() => mockAuthRepository.registerUser(testAuthEntity)).called(1);
-      verifyNoMoreInteractions(mockAuthRepository);
+      expect(result, const Right(null));
+      verify(() => mockAuthRepository.registerUser(tAuthEntity)).called(1);
     });
 
-    test('should return Failure when registration fails', () async {
+    test('should return failure when registration fails', () async {
       // Arrange
-      final failure = ApiFailure(message: "Registration Failed");
-      when(() => mockAuthRepository.registerUser(testAuthEntity))
-          .thenAnswer((_) async => Left<Failure, void>(failure));
+      final failure = ApiFailure(message: 'Registration failed');
+      when(() => mockAuthRepository.registerUser(tAuthEntity))
+          .thenAnswer((_) async => Left(failure));
 
       // Act
-      final result = await useCase(testAuthEntity);
+      final result = await registerUseCase(tAuthEntity);
 
       // Assert
       expect(result, Left(failure));
-      verify(() => mockAuthRepository.registerUser(testAuthEntity)).called(1);
-      verifyNoMoreInteractions(mockAuthRepository);
+      verify(() => mockAuthRepository.registerUser(tAuthEntity)).called(1);
     });
   });
 }

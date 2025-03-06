@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:housepal_project/features/job/presentation/view/seeker/sub_category_page.dart';
 
 class SeekerCategoryView extends StatelessWidget {
   const SeekerCategoryView({super.key});
@@ -113,34 +114,37 @@ class SeekerCategoryView extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          print('Tapped on $title');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SubcategoryView(category: title),
+            ),
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Aligns text to the left
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16, // Font size of the category title
-                  fontWeight: FontWeight.bold, // Make the title bold
-                  fontFamily: 'Poppins', // Use Poppins font
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
                   color: Colors.black87,
                 ),
                 textAlign: TextAlign.left,
               ),
-              const SizedBox(
-                  height: 8), // Adds slight spacing between text and image
+              const SizedBox(height: 8),
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
                     imagePath,
                     fit: BoxFit.cover,
-                    height: 250, // Adjusted image height
-                    width: double.infinity, // Full-width image
+                    height: 250,
+                    width: double.infinity,
                   ),
                 ),
               ),

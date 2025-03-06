@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:housepal_project/features/dashboard/presentation/helper/bottom_screens/helper_home_view.dart';
-import 'package:housepal_project/features/dashboard/presentation/helper/bottom_screens/helper_jobs_view.dart';
+import 'package:housepal_project/features/job/presentation/view/helper/helper_jobs_view.dart';
 import 'package:housepal_project/features/dashboard/presentation/helper/bottom_screens/helper_profile_view.dart';
-import 'package:housepal_project/features/dashboard/presentation/helper/bottom_screens/helper_tasks_view.dart';
+import 'package:housepal_project/features/task/presentation/view/helper_tasks_view.dart';
 
 class HelperDashboardView extends StatefulWidget {
   const HelperDashboardView({super.key});
 
   @override
-  State<HelperDashboardView> createState() => HelperDashboardViewState();
+  State<HelperDashboardView> createState() => _HelperDashboardViewState();
 }
 
-class HelperDashboardViewState extends State<HelperDashboardView> {
+class _HelperDashboardViewState extends State<HelperDashboardView> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
@@ -42,32 +42,32 @@ class HelperDashboardViewState extends State<HelperDashboardView> {
           BottomNavigationBarItem(
             icon: Image.asset(
               'assets/icons/home.png',
-              height: 20,
-              width: 20,
+              height: 24,
+              width: 24,
             ),
             label: "Home",
           ),
           BottomNavigationBarItem(
             icon: Image.asset(
               'assets/icons/suitcase.png',
-              height: 20,
-              width: 20,
+              height: 24,
+              width: 24,
             ),
             label: "Jobs",
           ),
           BottomNavigationBarItem(
             icon: Image.asset(
               'assets/icons/checklist.png',
-              height: 20,
-              width: 20,
+              height: 24,
+              width: 24,
             ),
             label: "Tasks",
           ),
           BottomNavigationBarItem(
             icon: Image.asset(
               'assets/icons/user.png',
-              height: 20,
-              width: 20,
+              height: 24,
+              width: 24,
             ),
             label: "Profile",
           ),

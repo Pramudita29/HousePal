@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:housepal_project/core/error/failure.dart';
 import 'package:housepal_project/features/auth/domain/repository/auth_repository.dart';
-import 'package:housepal_project/features/dashboard/domain/upload_image_usecase.dart';
+import 'package:housepal_project/features/dashboard/domain/usecase/upload_image_usecase.dart';
 import 'package:mocktail/mocktail.dart';
 
 // Mocking dependencies
