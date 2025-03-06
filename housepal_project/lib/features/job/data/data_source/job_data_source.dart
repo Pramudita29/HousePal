@@ -6,9 +6,9 @@ abstract class IJobDataSource {
   Future<JobPosting> updateJob(String jobId, JobPosting job);
   Future<void> deleteJob(String jobId);
   Future<List<JobPosting>> filterJobs({
-    String? employmentType,
+    String? contractType, // Align with backend
     String? category,
-    double? minSalary,
-    double? maxSalary,
+    String? location,
+    String? salaryRange, // Use String to match backend
   });
 }

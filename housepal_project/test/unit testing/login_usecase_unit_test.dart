@@ -1,54 +1,52 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:housepal_project/app/shared_prefs/token_shared_prefs.dart';
 import 'package:housepal_project/core/error/failure.dart';
 import 'package:housepal_project/features/auth/domain/repository/auth_repository.dart';
 import 'package:housepal_project/features/auth/domain/usecase/login_usecase.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-// Mocking dependencies
 class MockAuthRepository extends Mock implements IAuthRepository {}
 
-class MockTokenSharedPrefs extends Mock implements TokenSharedPrefs {}
-
 void main() {
+  // Initialize the binding before running tests
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late LoginUseCase loginUseCase;
   late MockAuthRepository mockAuthRepository;
-  late MockTokenSharedPrefs mockTokenSharedPrefs;
 
-  setUp(() {
+  setUp(() async {
+    // Mock SharedPreferences
+    SharedPreferences.setMockInitialValues({
+      'token': '', // Initial empty token value
+    });
+
     mockAuthRepository = MockAuthRepository();
-    mockTokenSharedPrefs = MockTokenSharedPrefs();
-    loginUseCase = LoginUseCase(mockAuthRepository, mockTokenSharedPrefs);
+    loginUseCase = LoginUseCase(mockAuthRepository);
+    registerFallbackValue(const LoginParams(email: '', password: ''));
   });
 
   group('LoginUseCase', () {
-    const tEmail = 'testuser';
+    const tEmail = 'testuser@example.com';
     const tPassword = 'testpass';
     const tToken = 'valid_token';
 
     test('should return token when login is successful', () async {
       // Arrange
       when(() => mockAuthRepository.loginUser(tEmail, tPassword))
-          .thenAnswer((_) async => Right(tToken));
-
-      // Ensure that the saveToken method returns a successful result.
-      when(() => mockTokenSharedPrefs.saveToken(tToken))
-          .thenAnswer((_) async => Right(true)); // Fixed here
-
-      // Mock the getToken to return a valid value.
-      when(() => mockTokenSharedPrefs.getToken()).thenAnswer(
-          (_) async => Right(tToken)); // Mock getToken to return the token
+          .thenAnswer((_) async => const Right(tToken));
 
       // Act
-      final result =
-          await loginUseCase(LoginParams(email: tEmail, password: tPassword));
+      final result = await loginUseCase(
+          const LoginParams(email: tEmail, password: tPassword));
 
       // Assert
-      expect(result, Right(tToken));
+      expect(result, const Right(tToken));
       verify(() => mockAuthRepository.loginUser(tEmail, tPassword)).called(1);
-      verify(() => mockTokenSharedPrefs.saveToken(tToken)).called(1);
-      verify(() => mockTokenSharedPrefs.getToken()).called(1);
+
+      // Verify SharedPreferences was updated
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('token'), tToken);
     });
 
     test('should return failure when login fails', () async {
@@ -58,8 +56,8 @@ void main() {
           .thenAnswer((_) async => Left(failure));
 
       // Act
-      final result =
-          await loginUseCase(LoginParams(email: tEmail, password: tPassword));
+      final result = await loginUseCase(
+          const LoginParams(email: tEmail, password: tPassword));
 
       // Assert
       expect(result, Left(failure));

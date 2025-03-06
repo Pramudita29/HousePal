@@ -4,79 +4,104 @@ import 'package:housepal_project/app/constants/theme_constant.dart';
 class AppTheme {
   AppTheme._();
 
-  static const primaryColor = Color(0xFF459D7A); // Example: your primary color
+  static ThemeData getApplicationTheme({required bool isDarkMode}) {
+    final Color primaryColor = isDarkMode
+        ? ThemeConstant.darkPrimaryColor
+        : ThemeConstant.lightPrimaryColor;
 
-  static getApplicationTheme({required bool isDarkMode}) {
     return ThemeData(
-      // Change the theme according to the user preference
-      colorScheme: isDarkMode
-          ? const ColorScheme.dark(
-              primary: ThemeConstant.darkPrimaryColor,
-            )
-          : const ColorScheme.light(
-              primary: Color(0xFF459D7A), // Accent color
-            ),
-      brightness: isDarkMode ? Brightness.dark : Brightness.light,
-      fontFamily: 'Poppins', // Set Poppins as the default font
-      useMaterial3: true,
-
-      // Change app bar color
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        backgroundColor: Colors.white, // AppBar background color
-        centerTitle: true,
+      primaryColor: primaryColor,
+      scaffoldBackgroundColor: isDarkMode
+          ? ThemeConstant.darkBackgroundColor
+          : ThemeConstant.lightBackgroundColor,
+      appBarTheme: AppBarTheme(
+        backgroundColor: isDarkMode
+            ? ThemeConstant.darkAppBarColor
+            : ThemeConstant.lightAppBarColor,
+        foregroundColor: isDarkMode
+            ? ThemeConstant.darkTextColor
+            : ThemeConstant.lightTextColor,
         titleTextStyle: TextStyle(
-          color: Colors.black, // AppBar title text color
+          color: isDarkMode
+              ? ThemeConstant.darkTextColor
+              : ThemeConstant.lightTextColor,
           fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
-
-      // Change elevated button theme
+      textTheme: TextTheme(
+        displayLarge: TextStyle(
+          color: isDarkMode
+              ? ThemeConstant.darkTextColor
+              : ThemeConstant.lightTextColor,
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+        ),
+        displayMedium: TextStyle(
+          color: isDarkMode
+              ? ThemeConstant.darkTextColor
+              : ThemeConstant.lightTextColor,
+          fontSize: 24,
+        ),
+        displaySmall: TextStyle(
+          color: isDarkMode
+              ? ThemeConstant.darkTextColor
+              : ThemeConstant.lightTextColor,
+          fontSize: 18,
+        ),
+        bodyLarge: TextStyle(
+          color: isDarkMode
+              ? ThemeConstant.darkTextColor
+              : ThemeConstant.lightTextColor,
+          fontSize: 16,
+        ),
+        bodyMedium: TextStyle(
+          color: isDarkMode
+              ? ThemeConstant.darkTextColor
+              : ThemeConstant.lightTextColor,
+          fontSize: 14,
+        ),
+        bodySmall: TextStyle(
+          color: isDarkMode
+              ? ThemeConstant.darkSecondaryTextColor
+              : ThemeConstant.lightSecondaryTextColor,
+          fontSize: 12,
+        ),
+        labelLarge: TextStyle(
+          color: isDarkMode
+              ? ThemeConstant.darkTextColor
+              : ThemeConstant.lightTextColor,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: Colors.green, // Matches your 0xFF459D7A approximately
+      ).copyWith(
+        primary: primaryColor,
+        secondary: primaryColor,
+        brightness: isDarkMode ? Brightness.dark : Brightness.light,
+        onPrimary: isDarkMode
+            ? ThemeConstant.darkTextColor
+            : ThemeConstant.lightTextColor,
+        onSurface: isDarkMode
+            ? ThemeConstant.darkTextColor
+            : ThemeConstant.lightTextColor,
+      ),
+      // Customize ElevatedButton theme
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          foregroundColor: Colors.white,
-          backgroundColor: const Color(0xFF459D7A), // Button background color
-          textStyle: const TextStyle(
-            fontSize: 20,
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+            (Set<WidgetState> states) {
+              return Colors.white; // Always white text for ElevatedButton
+            },
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-
-      // Change text field theme
-      inputDecorationTheme: const InputDecorationTheme(
-        contentPadding: EdgeInsets.all(15),
-        border: OutlineInputBorder(),
-        labelStyle: TextStyle(
-          fontSize: 20,
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.red,
+          backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+            (Set<WidgetState> states) {
+              return primaryColor; // Use the primary color for the button background
+            },
           ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Color(0xFF459D7A), // Focused border color
-          ),
-        ),
-      ),
-
-      // Circular progress bar theme
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: Color(0xFF459D7A), // Progress bar color
-      ),
-
-      // Bottom navigation bar theme
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: Color(0xFF459D7A), // Bottom nav selected item color
-        unselectedItemColor: Colors.black,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
       ),
     );
   }

@@ -74,14 +74,18 @@ class AuthLocalRepository implements IAuthRepository {
     }
   }
 
+
+
+  
   @override
-  Future<Either<Failure, AuthEntity>> updateUser(
-      AuthEntity user, String token) async {
-    try {
-      final updatedUser = await _authLocalDataSource.updateUser(user, token);
-      return Right(updatedUser); // Return the updated user
-    } catch (e) {
-      return Left(LocalDatabaseFailure(message: e.toString())); // Handle errors
-    }
+  Future<Either<Failure, void>> logoutUser() {
+    // TODO: implement logoutUser
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<Either<Failure, AuthEntity>> updateUser(AuthEntity user) {
+    // TODO: implement updateUser
+    throw UnimplementedError();
   }
 }

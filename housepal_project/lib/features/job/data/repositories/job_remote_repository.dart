@@ -17,11 +17,8 @@ class JobRemoteRepository implements IJobRepository {
       return Right(jobPostings);
     } on DioException catch (e) {
       return Left(ApiFailure(
-        message: "Failed to load jobs: ${e.message}",
-        statusCode: e.response?.statusCode,
-      ));
-    } catch (e) {
-      return Left(ApiFailure(message: "Unexpected error: $e"));
+          message: e.response?.data['message'] ?? e.message,
+          statusCode: e.response?.statusCode));
     }
   }
 
@@ -32,11 +29,8 @@ class JobRemoteRepository implements IJobRepository {
       return Right(result);
     } on DioException catch (e) {
       return Left(ApiFailure(
-        message: "Failed to create job posting: ${e.message}",
-        statusCode: e.response?.statusCode,
-      ));
-    } catch (e) {
-      return Left(ApiFailure(message: "Unexpected error: $e"));
+          message: e.response?.data['message'] ?? e.message,
+          statusCode: e.response?.statusCode));
     }
   }
 
@@ -48,51 +42,43 @@ class JobRemoteRepository implements IJobRepository {
       return Right(updatedJob);
     } on DioException catch (e) {
       return Left(ApiFailure(
-        message: "Failed to update job posting: ${e.message}",
-        statusCode: e.response?.statusCode,
-      ));
-    } catch (e) {
-      return Left(ApiFailure(message: "Unexpected error: $e"));
+          message: e.response?.data['message'] ?? e.message,
+          statusCode: e.response?.statusCode));
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> deleteJob(String jobId) async {
+  Future<Either<Failure, void>> deleteJob(String jobId) async {
+    // Changed to void
     try {
       await jobRemoteDataSource.deleteJob(jobId);
-      return const Right(unit);
+      return const Right(null);
     } on DioException catch (e) {
       return Left(ApiFailure(
-        message: "Failed to delete job posting: ${e.message}",
-        statusCode: e.response?.statusCode,
-      ));
-    } catch (e) {
-      return Left(ApiFailure(message: "Unexpected error: $e"));
+          message: e.response?.data['message'] ?? e.message,
+          statusCode: e.response?.statusCode));
     }
   }
 
   @override
   Future<Either<Failure, List<JobPosting>>> filterJobs({
-    String? employmentType,
+    String? contractType,
     String? category,
-    double? minSalary,
-    double? maxSalary,
+    String? location,
+    String? salaryRange,
   }) async {
     try {
       final jobPostings = await jobRemoteDataSource.filterJobs(
-        employmentType: employmentType,
+        contractType: contractType,
         category: category,
-        minSalary: minSalary,
-        maxSalary: maxSalary,
+        location: location,
+        salaryRange: salaryRange,
       );
       return Right(jobPostings);
     } on DioException catch (e) {
       return Left(ApiFailure(
-        message: "Failed to filter jobs: ${e.message}",
-        statusCode: e.response?.statusCode,
-      ));
-    } catch (e) {
-      return Left(ApiFailure(message: "Unexpected error: $e"));
+          message: e.response?.data['message'] ?? e.message,
+          statusCode: e.response?.statusCode));
     }
   }
 }

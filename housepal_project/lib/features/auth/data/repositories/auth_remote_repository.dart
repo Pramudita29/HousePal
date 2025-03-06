@@ -21,12 +21,10 @@ class AuthRemoteRepository implements IAuthRepository {
   Future<Either<Failure, AuthEntity>> getCurrentUser() async {
     try {
       final token = await _getToken();
-
       if (token == null || token.isEmpty) {
         return Left(
             SharedPrefsFailure(message: "No authentication token found"));
       }
-
       final user = await _authRemoteDataSource.getCurrentUser(token);
       return Right(user);
     } catch (e) {
@@ -39,30 +37,21 @@ class AuthRemoteRepository implements IAuthRepository {
       String email, String password) async {
     try {
       final token = await _authRemoteDataSource.loginUser(email, password);
-
-      if (token.isEmpty) {
-        return Left(
-            SharedPrefsFailure(message: "No authentication token found"));
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', token);
-
       return Right(token);
     } catch (e) {
-      return Left(ApiFailure(message: "Failed to login user: $e"));
+      return Left(
+          ApiFailure(message: e.toString().replaceFirst("Exception: ", "")));
     }
   }
 
   @override
   Future<Either<Failure, void>> registerUser(AuthEntity user) async {
     try {
-      await _authRemoteDataSource.registerUser(user); // Register user
-      await saveUserData(user); // Save user details locally
-
+      await _authRemoteDataSource.registerUser(user);
       return const Right(null);
     } catch (e) {
-      return Left(ApiFailure(message: "Failed to register user: $e"));
+      return Left(
+          ApiFailure(message: e.toString().replaceFirst("Exception: ", "")));
     }
   }
 
@@ -70,43 +59,59 @@ class AuthRemoteRepository implements IAuthRepository {
   Future<Either<Failure, String>> uploadProfilePicture(
       File file, String role, String email) async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        return Left(
+            SharedPrefsFailure(message: "No authentication token found"));
+      }
       final imageUrl =
           await _authRemoteDataSource.uploadProfilePicture(file, role, email);
-      return Right(imageUrl); // Return the image URL
+      return Right(imageUrl);
     } catch (e) {
-      return Left(ApiFailure(message: "Failed to upload profile picture: $e"));
+      return Left(
+          ApiFailure(message: e.toString().replaceFirst("Exception: ", "")));
     }
   }
 
   @override
-  Future<Either<Failure, AuthEntity>> updateUser(
-      AuthEntity user, String token) async {
+  Future<Either<Failure, AuthEntity>> updateUser(AuthEntity user) async {
     try {
-      if (token.isEmpty) {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
         return Left(
             SharedPrefsFailure(message: "No authentication token found"));
       }
-
       final updatedUser = await _authRemoteDataSource.updateUser(user, token);
-
-      await saveUserData(updatedUser); // Optionally, save updated user data
-
+      await _saveUserData(updatedUser);
       return Right(updatedUser);
     } catch (e) {
-      return Left(ApiFailure(message: "Failed to update user: $e"));
+      return Left(
+          ApiFailure(message: e.toString().replaceFirst("Exception: ", "")));
     }
   }
 
-  // Function to save user data in SharedPreferences
-  Future<void> saveUserData(AuthEntity user) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    await prefs.setString('seekerId', user.userId ?? '');
+  Future<void> _saveUserData(AuthEntity user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', user.userId ?? '');
     await prefs.setString('fullName', user.fullName);
     await prefs.setString('email', user.email);
     await prefs.setString('contactNo', user.contactNo);
     await prefs.setString('role', user.role);
-
+    if (user.role == 'Helper') {
+      await prefs.setStringList('skills', user.skills?.cast<String>() ?? []);
+      await prefs.setString('experience', user.experience ?? '');
+    }
     print("User data saved successfully");
+  }
+
+  @override
+  Future<Either<Failure, void>> logoutUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      return const Right(null);
+    } catch (e) {
+      return Left(SharedPrefsFailure(message: "Failed to logout: $e"));
+    }
   }
 }

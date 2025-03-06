@@ -6,27 +6,25 @@ part 'auth_api_model.g.dart';
 
 @JsonSerializable()
 class AuthApiModel extends Equatable {
-  @JsonKey(name: '_id')
+  @JsonKey(name: 'id') // Map '_id' from backend to 'id'
   final String? id;
 
-  final String fullName;
-  final String contactNo;
-  final String email;
-  final String password;
-  final String confirmPassword;
-  final String role;
-  final List? skills;
+  final String? fullName;
+  final String? contactNo;
+  final String? email;
+  final String? password; // Only sent in requests, not responses
+  final String? role;
+  final List<String>? skills; // Changed to List<String> to match backend
   final String? image;
   final String? experience;
 
   const AuthApiModel({
     this.id,
-    required this.fullName,
-    required this.email,
-    required this.contactNo,
-    required this.password,
-    required this.confirmPassword,
-    required this.role,
+    this.fullName,
+    this.email,
+    this.contactNo,
+    this.password,
+    this.role,
     this.skills,
     this.image,
     this.experience,
@@ -40,12 +38,12 @@ class AuthApiModel extends Equatable {
   AuthEntity toEntity() {
     return AuthEntity(
       userId: id ?? '',
-      fullName: fullName,
-      email: email,
-      contactNo: contactNo,
-      password: password,
-      confirmPassword: confirmPassword,
-      role: role,
+      fullName: fullName ?? '',
+      email: email ?? '',
+      contactNo: contactNo ?? '',
+      password: password ?? '',
+      confirmPassword: password ?? '', // Not in response, default to password
+      role: role ?? '',
       skills: skills ?? [],
       image: image ?? '',
       experience: experience ?? '',
@@ -59,9 +57,8 @@ class AuthApiModel extends Equatable {
       email: entity.email,
       contactNo: entity.contactNo,
       password: entity.password,
-      confirmPassword: entity.confirmPassword,
       role: entity.role,
-      skills: entity.skills,
+      skills: entity.skills?.cast<String>(),
       image: entity.image,
       experience: entity.experience,
     );
@@ -74,9 +71,9 @@ class AuthApiModel extends Equatable {
         email,
         contactNo,
         password,
-        confirmPassword,
         role,
         skills,
+        image,
         experience,
       ];
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:housepal_project/features/dashboard/presentation/cubit/seeker_dashboard_cubit.dart';
-import 'package:housepal_project/features/dashboard/presentation/seeker/bottom_screens/seeker_home_view.dart';
 import 'package:housepal_project/features/dashboard/presentation/seeker/bottom_screens/seeker_category_view.dart';
-import 'package:housepal_project/features/dashboard/presentation/seeker/bottom_screens/seeker_booking_view.dart';
+import 'package:housepal_project/features/dashboard/presentation/seeker/bottom_screens/seeker_home_view.dart';
 import 'package:housepal_project/features/dashboard/presentation/seeker/bottom_screens/seeker_profile_view.dart';
+import 'package:housepal_project/features/job_application/presentation/view/seeker/seeker_job_application_view.dart';
 
 class SeekerDashboardView extends StatelessWidget {
   const SeekerDashboardView({super.key});
@@ -18,9 +18,9 @@ class SeekerDashboardView extends StatelessWidget {
         body: BlocBuilder<SeekerDashboardCubit, int>(
           builder: (context, currentIndex) {
             final pages = [
-              const SeekerHomeView(fullName: '',),
+              const SeekerHomeView(),
               const SeekerCategoryView(),
-              const SeekerBookingView(),
+              const SeekerJobApplicationsView(),
               const SeekerProfileView(),
             ];
             return pages[currentIndex];

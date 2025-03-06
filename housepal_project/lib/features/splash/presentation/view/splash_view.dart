@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:housepal_project/core/theme/app_theme.dart';
 import 'package:housepal_project/features/auth/presentation/view/onboarding_view.dart'; // Assuming app_theme.dart has your theme
 
 class SplashView extends StatefulWidget {
@@ -31,8 +30,7 @@ class _SplashViewState extends State<SplashView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          AppTheme.primaryColor, // Customize with your primary color
+      backgroundColor: Theme.of(context).primaryColor, // Dynamic primary color
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

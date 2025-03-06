@@ -1,16 +1,45 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:housepal_project/features/dashboard/domain/usecase/get_user_usecase.dart';
 import 'package:housepal_project/features/job/domain/entity/job_posting.dart';
 import 'package:housepal_project/features/job/presentation/view_model/job_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Add shared_preferences import if you haven't
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'HousePal Project',
+      theme: ThemeData(
+        primaryColor: Colors.blue, // Set the primary color
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.blue, // Set the AppBar background color
+          foregroundColor: Colors.white, // Set the AppBar text/icon color
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(),
+          labelStyle: TextStyle(color: Colors.blue), // Set the label color
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.blue, // Set the ElevatedButton text color
+          ),
+        ),
+      ),
+      home: AddTaskView(),
+    );
+  }
+}
 
 class AddTaskView extends StatefulWidget {
-  final GetUserUseCase getUserUseCase;
-
-  const AddTaskView({super.key, required this.getUserUseCase});
+  const AddTaskView({super.key});
 
   @override
   _AddTaskViewState createState() => _AddTaskViewState();
@@ -23,201 +52,202 @@ class _AddTaskViewState extends State<AddTaskView> {
   final _locationController = TextEditingController();
   final _salaryRangeController = TextEditingController();
   final _contactInfoController = TextEditingController();
-  String _category = 'Housekeeping';
-  String _subCategory = 'Cleaning';
-  String _contractType = 'Full-time';
-  DateTime _applicationDeadline = DateTime.now().add(Duration(days: 7));
-  final List<File> _referenceImages = [];
 
-  Future<String?> _getPosterId() async {
-    // Retrieve the posterId (seekerId or userId) from SharedPreferences or another service.
+  String _category = 'Cleaning';
+  String _subCategory = 'General Cleaning';
+  String _contractType = 'Full-time';
+  DateTime _applicationDeadline = DateTime.now().add(const Duration(days: 7));
+
+  String? _fullName;
+  String? _email;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDetails();
+  }
+
+  Future<void> _loadUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs
-        .getString('userId'); // Assuming 'userId' was saved during login
+    setState(() {
+      _fullName = prefs.getString('fullName') ?? 'Unknown User';
+      _email = prefs.getString('email') ?? 'unknown@example.com';
+    });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Post a Job')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTextField(_jobTitleController, 'Job Title'),
-              _buildTextField(_jobDetailsController, 'Job Details',
-                  maxLines: 3),
-              _buildDropdownField(
-                value: _category,
-                label: 'Category',
-                items: ['Housekeeping', 'Gardening', 'Cooking'],
-                onChanged: (value) => setState(() => _category = value!),
-              ),
-              _buildDropdownField(
-                value: _subCategory,
-                label: 'Subcategory',
-                items: ['Cleaning', 'Carpet Cleaning', 'Window Cleaning'],
-                onChanged: (value) => setState(() => _subCategory = value!),
-              ),
-              _buildTextField(_locationController, 'Location'),
-              _buildTextField(_salaryRangeController, 'Salary Range'),
-              _buildDropdownField(
-                value: _contractType,
-                label: 'Contract Type',
-                items: ['Full-time', 'Part-time', 'Temporary'],
-                onChanged: (value) => setState(() => _contractType = value!),
-              ),
-              _buildDatePickerField(
-                label: 'Application Deadline',
-                date: _applicationDeadline,
-                onDateSelected: (selectedDate) {
-                  setState(() => _applicationDeadline = selectedDate);
-                },
-              ),
-              _buildTextField(_contactInfoController, 'Contact Info'),
-              const SizedBox(height: 12),
-              _buildImagePickerSection(),
-              const SizedBox(height: 20),
-              _buildSubmitButton(context),
-              BlocListener<JobPostingBloc, JobPostingState>(
-                listener: (context, state) {
-                  if (state.isLoading) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Posting job...')),
-                    );
-                  } else if (state.isSuccess) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Job posted successfully!')),
-                    );
-                    Navigator.pop(context);
-                  } else if (state.errorMessage.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: ${state.errorMessage}')),
-                    );
-                  }
-                },
-                child: Container(),
-              ),
-            ],
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Post a Job')),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTextField(_jobTitleController, 'Job Title'),
+                _buildTextField(_jobDetailsController, 'Job Details',
+                    maxLines: 3),
+                _buildDropdownField(
+                  value: _category,
+                  label: 'Category',
+                  items: [
+                    'Cleaning',
+                    'Elderly Care',
+                    'Babysitting',
+                    'Cooking',
+                    'Gardening Services',
+                    'Home Maintenance'
+                  ],
+                  onChanged: (value) => setState(() {
+                    _category = value!;
+                    _subCategory = _getSubCategories(_category).first;
+                  }),
+                ),
+                _buildDropdownField(
+                  value: _subCategory,
+                  label: 'Subcategory',
+                  items: _getSubCategories(_category),
+                  onChanged: (value) => setState(() => _subCategory = value!),
+                ),
+                _buildTextField(_locationController, 'Location'),
+                _buildTextField(_salaryRangeController, 'Salary Range'),
+                _buildDropdownField(
+                  value: _contractType,
+                  label: 'Contract Type',
+                  items: ['Full-time', 'Part-time', 'Temporary'],
+                  onChanged: (value) => setState(() => _contractType = value!),
+                ),
+                _buildDatePickerField(
+                  label: 'Application Deadline',
+                  date: _applicationDeadline,
+                  onDateSelected: (selectedDate) =>
+                      setState(() => _applicationDeadline = selectedDate),
+                ),
+                _buildTextField(_contactInfoController, 'Contact Info'),
+                const SizedBox(height: 12),
+                _buildSubmitButton(context),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+
+  List<String> _getSubCategories(String category) {
+    switch (category) {
+      case 'Cleaning':
+        return [
+          'General Cleaning',
+          'Deep Cleaning',
+          'Carpet Cleaning',
+          'Window Cleaning',
+          'Kitchen Cleaning'
+        ];
+      case 'Elderly Care':
+        return [
+          'Daily Assistance',
+          'Medical Accompaniment',
+          'Meal Preparation',
+          'Companionship',
+          'Mobility Assistance'
+        ];
+      case 'Babysitting':
+        return [
+          'Infant Care',
+          'Toddler Care',
+          'After-School Care',
+          'Overnight Care',
+          'Special Needs Care'
+        ];
+      case 'Cooking':
+        return [
+          'Meal Prep',
+          'Vegetarian Cooking',
+          'Gluten-Free Cooking',
+          'Party Catering',
+          'Dietary Restrictions'
+        ];
+      case 'Gardening Services':
+        return [
+          'Lawn Care',
+          'Planting',
+          'Pruning',
+          'Pest Control',
+          'Landscape Design'
+        ];
+      case 'Home Maintenance':
+        return [
+          'Plumbing',
+          'Electrical Work',
+          'Painting',
+          'Carpentry',
+          'Appliance Repair'
+        ];
+      default:
+        return [];
+    }
   }
 
-  /// **Reusable TextField Widget**
   Widget _buildTextField(TextEditingController controller, String label,
-      {int maxLines = 1}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextFormField(
-        controller: controller,
-        decoration:
-            InputDecoration(labelText: label, border: OutlineInputBorder()),
-        maxLines: maxLines,
-        validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-      ),
-    );
-  }
-
-  /// **Reusable Dropdown Field Widget**
-  Widget _buildDropdownField({
-    required String value,
-    required String label,
-    required List<String> items,
-    required Function(String?) onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        onChanged: onChanged,
-        items: items
-            .map((item) => DropdownMenuItem(value: item, child: Text(item)))
-            .toList(),
-        decoration:
-            InputDecoration(labelText: label, border: OutlineInputBorder()),
-      ),
-    );
-  }
-
-  /// **Date Picker Field**
-  Widget _buildDatePickerField(
-      {required String label,
-      required DateTime date,
-      required Function(DateTime) onDateSelected}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        title: Text('$label: ${date.toLocal().toString().split(' ')[0]}'),
-        trailing: const Icon(Icons.calendar_today),
-        onTap: () async {
-          DateTime? pickedDate = await showDatePicker(
-            context: context,
-            initialDate: date,
-            firstDate: DateTime.now(),
-            lastDate: DateTime(2100),
-          );
-          if (pickedDate != null) {
-            onDateSelected(pickedDate);
-          }
-        },
-      ),
-    );
-  }
-
-  /// **Image Picker Section**
-  Widget _buildImagePickerSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Reference Images",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          children: _referenceImages
-              .map((file) => Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      Image.file(file,
-                          width: 80, height: 80, fit: BoxFit.cover),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _referenceImages.remove(file);
-                          });
-                        },
-                        child: const Icon(Icons.cancel,
-                            color: Colors.red, size: 20),
-                      ),
-                    ],
-                  ))
-              .toList(),
+          {int maxLines = 1}) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: TextFormField(
+          controller: controller,
+          decoration:
+              InputDecoration(labelText: label, border: OutlineInputBorder()),
+          maxLines: maxLines,
+          validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
         ),
-      ],
-    );
-  }
+      );
 
-  /// **Submit Button**
-  Widget _buildSubmitButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () async {
-          if (_formKey.currentState?.validate() ?? false) {
-            final posterId = await _getPosterId(); // Get the poster ID
+  Widget _buildDropdownField(
+          {required String value,
+          required String label,
+          required List<String> items,
+          required Function(String?) onChanged}) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: DropdownButtonFormField<String>(
+          value: value,
+          onChanged: onChanged,
+          items: items
+              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+              .toList(),
+          decoration:
+              InputDecoration(labelText: label, border: OutlineInputBorder()),
+        ),
+      );
 
-            if (posterId != null) {
+  Widget _buildDatePickerField(
+          {required String label,
+          required DateTime date,
+          required Function(DateTime) onDateSelected}) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: ListTile(
+          title: Text('$label: ${date.toLocal().toString().split(' ')[0]}'),
+          trailing: const Icon(Icons.calendar_today),
+          onTap: () async {
+            DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: date,
+                firstDate: DateTime.now(),
+                lastDate: DateTime(2100));
+            if (pickedDate != null) onDateSelected(pickedDate);
+          },
+        ),
+      );
+
+  Widget _buildSubmitButton(BuildContext context) => SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
               final jobPosting = JobPosting(
-                jobId: '',
+                jobId: const Uuid().v4(),
                 jobTitle: _jobTitleController.text,
-                jobDetails: _jobDetailsController.text,
-                datePosted: DateTime.now(),
-                status: 'Open',
+                jobDescription: _jobDetailsController.text,
                 category: _category,
                 subCategory: _subCategory,
                 location: _locationController.text,
@@ -225,20 +255,19 @@ class _AddTaskViewState extends State<AddTaskView> {
                 contractType: _contractType,
                 applicationDeadline: _applicationDeadline,
                 contactInfo: _contactInfoController.text,
-                posterId: posterId, // Pass the posterId here
+                datePosted: DateTime.now(),
+                status: "Open",
+                posterFullName: _fullName ?? '',
+                posterEmail: _email ?? '',
+                posterImage: '',
               );
-
-              BlocProvider.of<JobPostingBloc>(context)
+              context
+                  .read<JobPostingBloc>()
                   .add(CreateJobPostingEvent(jobPosting));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: Unable to get user ID')),
-              );
+              Navigator.pop(context);
             }
-          }
-        },
-        child: const Text('Post Job'),
-      ),
-    );
-  }
+          },
+          child: const Text('Post Job'),
+        ),
+      );
 }

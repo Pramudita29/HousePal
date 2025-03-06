@@ -10,163 +10,129 @@ class JobRemoteDataSource implements IJobDataSource {
 
   JobRemoteDataSource(this._dio);
 
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   @override
   Future<List<JobPosting>> getAllJobs() async {
     try {
-      final response = await _dio.get(ApiEndpoints.getAllJobs);
+      final token = await _getToken();
+      final response = await _dio.get(
+        ApiEndpoints.getPublicJobs, // Use public endpoint for all jobs
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> jobJson = response.data;
-
-        // Retrieve user details from SharedPreferences
-        final userDetails = await getUserDetails();
-        final posterFullName = userDetails['posterFullName'];
-        final posterEmail = userDetails['posterEmail'];
-
-        // Update each job object with the retrieved user details
-        final List<JobPosting> jobs = jobJson.map((job) {
-          final jobEntity = JobPostingApiModel.fromJson(job).toEntity();
-          return jobEntity.copyWith(
-            posterFullName: posterFullName,
-            posterEmail: posterEmail,
-          );
-        }).toList();
-
-        return jobs;
+        return jobJson
+            .map((job) => JobPostingApiModel.fromJson(job).toEntity())
+            .toList();
       } else {
         throw Exception("Failed to load jobs: ${response.statusMessage}");
       }
     } on DioException catch (e) {
-      print("Error in getAllJobs: ${e.message}");
-      throw Exception("Failed to load jobs: ${e.message}");
-    } catch (e) {
-      print("Unexpected error in getAllJobs: $e");
-      rethrow;
+      throw Exception(
+          "Failed to load jobs: ${e.response?.data['message'] ?? e.message}");
     }
   }
 
   @override
   Future<JobPosting> createJob(JobPosting job) async {
     try {
+      final token = await _getToken();
+      if (token == null) throw Exception("Token is missing");
+
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+      final posterEmail = prefs.getString('posterEmail') ??
+          prefs.getString('email') ??
+          'unknown@example.com';
 
-      if (token == null) {
-        throw Exception("Token is missing");
-      }
-
-      // Retrieve user details from SharedPreferences
-      final userDetails = await getUserDetails();
-      final posterFullName = userDetails['posterFullName'];
-      final posterEmail = userDetails['posterEmail'];
-
-      // Update the job object with the retrieved user details
-      final updatedJob = job.copyWith(
-        posterFullName: posterFullName,
-        posterEmail: posterEmail,
-      );
-
+      final updatedJob = job.copyWith(posterEmail: posterEmail);
       final jobApiModel = JobPostingApiModel.fromEntity(updatedJob);
-      final jobJson = jobApiModel.toJson();
 
-      Response response = await _dio.post(
+      final response = await _dio.post(
         ApiEndpoints.createJob,
-        data: jobJson,
-        options: Options(
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        data: jobApiModel.toJson(),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       if (response.statusCode == 201) {
         return JobPostingApiModel.fromJson(response.data).toEntity();
       } else {
-        throw Exception("Failed to create job: ${response.statusMessage}");
+        throw Exception("Failed to create job: ${response.data['message']}");
       }
     } on DioException catch (e) {
-      print("Create job error: ${e.message}");
-      throw Exception("Create job error: ${e.response?.data ?? e.message}");
-    } catch (e) {
-      print("Unexpected error in createJob: $e");
-      rethrow;
+      throw Exception(
+          "Create job error: ${e.response?.data['message'] ?? e.message}");
     }
-  }
-
-  Future<Map<String, String>> getUserDetails() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final posterFullName = prefs.getString('posterFullName') ?? 'Unknown User';
-    final posterEmail = prefs.getString('posterEmail') ?? 'No email available';
-
-    // Debugging: Print the retrieved user details
-    print('getUserDetails - Retrieved Poster Full Name: $posterFullName');
-    print('getUserDetails - Retrieved Poster Email: $posterEmail');
-
-    return {
-      'posterFullName': posterFullName,
-      'posterEmail': posterEmail,
-    };
   }
 
   @override
   Future<JobPosting> updateJob(String jobId, JobPosting job) async {
     try {
-      Response response = await _dio.put(
+      final token = await _getToken();
+      if (token == null) throw Exception("Token is missing");
+
+      final response = await _dio.put(
         ApiEndpoints.updateJob(jobId),
         data: JobPostingApiModel.fromEntity(job).toJson(),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       if (response.statusCode == 200) {
-        return JobPostingApiModel.fromJson(response.data).toEntity();
+        return JobPostingApiModel.fromJson(response.data['data']).toEntity();
       } else {
-        throw Exception("Failed to update job: ${response.statusMessage}");
+        throw Exception("Failed to update job: ${response.data['message']}");
       }
     } on DioException catch (e) {
-      print("Update job error: ${e.message}");
-      throw Exception("Update job error: ${e.response?.data ?? e.message}");
-    } catch (e) {
-      print("Unexpected error in updateJob: $e");
-      rethrow;
+      throw Exception(
+          "Update job error: ${e.response?.data['message'] ?? e.message}");
     }
   }
 
   @override
   Future<void> deleteJob(String jobId) async {
     try {
-      Response response = await _dio.delete(ApiEndpoints.deleteJob(jobId));
+      final token = await _getToken();
+      if (token == null) throw Exception("Token is missing");
+
+      final response = await _dio.delete(
+        ApiEndpoints.deleteJob(jobId),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
 
       if (response.statusCode != 200) {
-        throw Exception("Failed to delete job: ${response.statusMessage}");
+        throw Exception("Failed to delete job: ${response.data['message']}");
       }
     } on DioException catch (e) {
-      print("Delete job error: ${e.message}");
-      throw Exception("Delete job error: ${e.response?.data ?? e.message}");
-    } catch (e) {
-      print("Unexpected error in deleteJob: $e");
-      rethrow;
+      throw Exception(
+          "Delete job error: ${e.response?.data['message'] ?? e.message}");
     }
   }
 
   @override
   Future<List<JobPosting>> filterJobs({
-    String? employmentType,
+    String? contractType,
     String? category,
-    double? minSalary,
-    double? maxSalary,
+    String? location,
+    String? salaryRange,
   }) async {
     final queryParams = {
-      if (employmentType != null) 'employmentType': employmentType,
+      if (contractType != null) 'contractType': contractType,
       if (category != null) 'category': category,
-      if (minSalary != null) 'minSalary': minSalary.toString(),
-      if (maxSalary != null) 'maxSalary': maxSalary.toString(),
+      if (location != null) 'location': location,
+      if (salaryRange != null) 'salaryRange': salaryRange,
     };
 
     try {
-      final uri = Uri.parse(ApiEndpoints.filterJobs)
-          .replace(queryParameters: queryParams);
-      final response = await _dio.get(uri.toString());
+      final token = await _getToken();
+      final response = await _dio.get(
+        ApiEndpoints.filterJobs,
+        queryParameters: queryParams,
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> jobJson = response.data['jobs'];
@@ -174,14 +140,11 @@ class JobRemoteDataSource implements IJobDataSource {
             .map((job) => JobPostingApiModel.fromJson(job).toEntity())
             .toList();
       } else {
-        throw Exception("Failed to filter jobs: ${response.statusMessage}");
+        throw Exception("Failed to filter jobs: ${response.data['message']}");
       }
     } on DioException catch (e) {
-      print("Filter jobs error: ${e.message}");
-      throw Exception("Filter jobs error: ${e.response?.data ?? e.message}");
-    } catch (e) {
-      print("Unexpected error in filterJobs: $e");
-      rethrow;
+      throw Exception(
+          "Filter jobs error: ${e.response?.data['message'] ?? e.message}");
     }
   }
 }

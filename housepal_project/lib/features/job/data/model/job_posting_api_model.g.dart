@@ -8,42 +8,38 @@ part of 'job_posting_api_model.dart';
 
 JobPostingApiModel _$JobPostingApiModelFromJson(Map<String, dynamic> json) =>
     JobPostingApiModel(
-      id: json['_id'] as String?, // Already nullable
-      jobTitle: json['jobTitle'] as String? ?? '', // Provide default value
-      jobDescription: json['jobDescription'] as String? ?? '',
-      datePosted: json['datePosted'] != null
-          ? DateTime.parse(json['datePosted'] as String)
-          : DateTime.now(), // Default value to prevent parsing error
-      status: json['status'] as String? ?? 'pending', // Example default
-      category: json['category'] as String? ?? '',
+      id: json['_id'] as String?,
+      posterEmail: json['posterEmail'] as String?,
+      jobTitle: json['jobTitle'] as String,
+      jobDescription: json['jobDescription'] as String,
+      datePosted: json['datePosted'] == null
+          ? null
+          : DateTime.parse(json['datePosted'] as String),
+      category: json['category'] as String,
       subCategory: json['subCategory'] as String?,
       location: json['location'] as String?,
-      salaryRange: json['salaryRange'] as String? ?? 'Negotiable',
-      contractType: json['contractType'] as String? ?? '',
-      applicationDeadline: json['applicationDeadline'] != null
-          ? DateTime.parse(json['applicationDeadline'] as String)
-          : DateTime.now(),
+      salaryRange: json['salaryRange'] as String,
+      contractType: json['contractType'] as String,
+      applicationDeadline: json['applicationDeadline'] == null
+          ? null
+          : DateTime.parse(json['applicationDeadline'] as String),
       contactInfo: json['contactInfo'] as String?,
-      posterFullName: json['posterFullName'] as String?,
-      posterEmail: json['posterEmail'] as String?,
-      posterImage: json['posterImage'] as String?,
+      status: json['status'] as String?,
     );
 
 Map<String, dynamic> _$JobPostingApiModelToJson(JobPostingApiModel instance) =>
     <String, dynamic>{
       '_id': instance.id,
+      'posterEmail': instance.posterEmail,
       'jobTitle': instance.jobTitle,
       'jobDescription': instance.jobDescription,
-      'datePosted': instance.datePosted.toIso8601String(),
-      'status': instance.status,
+      'datePosted': instance.datePosted?.toIso8601String(),
       'category': instance.category,
       'subCategory': instance.subCategory,
       'location': instance.location,
       'salaryRange': instance.salaryRange,
       'contractType': instance.contractType,
-      'applicationDeadline': instance.applicationDeadline.toIso8601String(),
+      'applicationDeadline': instance.applicationDeadline?.toIso8601String(),
       'contactInfo': instance.contactInfo,
-      'posterFullName': instance.posterFullName,
-      'posterEmail': instance.posterEmail,
-      'posterImage': instance.posterImage,
+      'status': instance.status,
     };

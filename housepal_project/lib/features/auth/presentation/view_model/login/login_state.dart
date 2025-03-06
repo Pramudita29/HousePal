@@ -1,64 +1,33 @@
-// part of 'login_bloc.dart';
-
-// class LoginState {
-//   final bool isLoading;
-//   final bool isSuccess;
-//   final String? role;
-
-//   LoginState({
-//     this.isLoading = false,
-//     this.isSuccess = false,
-//     this.role,
-//   });
-
-//   // ✅ Factory constructor to create an initial state
-//   factory LoginState.initial() {
-//     return LoginState(
-//       isLoading: false,
-//       isSuccess: false,
-//       role: null,
-//     );
-//   }
-
-//   LoginState copyWith({
-//     bool? isLoading,
-//     bool? isSuccess,
-//     String? role,
-//   }) {
-//     return LoginState(
-//       isLoading: isLoading ?? this.isLoading,
-//       isSuccess: isSuccess ?? this.isSuccess,
-//       role: role ?? this.role,
-//     );
-//   }
-// }
 part of 'login_bloc.dart';
 
-class LoginState {
+class LoginState extends Equatable {
   final bool isLoading;
   final bool isSuccess;
   final String? role;
+  final String? errorMessage; // Added errorMessage field
 
-  LoginState({
+  const LoginState({
     required this.isLoading,
-    required this.isSuccess,
+    this.isSuccess = false,
     this.role,
+    this.errorMessage,
   });
 
-  LoginState.initial()
-      : isLoading = false,
-        isSuccess = false,
-        role = null;
+  factory LoginState.initial() => const LoginState(isLoading: false);
 
   LoginState copyWith({
     bool? isLoading,
     bool? isSuccess,
     String? role,
-  }) {
-    return LoginState(
-      isLoading: isLoading ?? this.isLoading,
-      isSuccess: isSuccess ?? this.isSuccess,
-      role: role ?? this.role,
-    );
-  }
+    String? errorMessage,
+  }) =>
+      LoginState(
+        isLoading: isLoading ?? this.isLoading,
+        isSuccess: isSuccess ?? this.isSuccess,
+        role: role ?? this.role,
+        errorMessage: errorMessage ?? this.errorMessage,
+      );
+
+  @override
+  List<Object?> get props => [isLoading, isSuccess, role, errorMessage];
 }
